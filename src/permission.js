@@ -5,7 +5,7 @@ import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
 import { getToken } from '@/utils/auth' // get token from cookie
 import getPageTitle from '@/utils/get-page-title'
-
+import {constantRoutes} from '@/router'
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
 const whiteList = ['/login'] // no redirect whitelist
@@ -21,6 +21,12 @@ router.beforeEach(async(to, from, next) => {
   const hasToken = getToken()
 
   if (hasToken) {
+    constantRoutes.forEach(item => {
+      if(item.path === '/example'){
+        item.hidden = true
+      }
+    })
+    console.log(constantRoutes)
     if (to.path === '/login') {
       // if is logged in, redirect to the home page
       next({ path: '/' })

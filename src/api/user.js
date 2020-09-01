@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function login(data) {
   return request({
-    url: '/vue-admin-template/user/login',
+    url: 'http://127.0.0.1/zenitoo-user/manage/login',
     method: 'post',
     data
   })

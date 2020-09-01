@@ -30,12 +30,15 @@ const mutations = {
 const actions = {
   // user login
   login({ commit }, userInfo) {
-    const { username, password } = userInfo
+    const { username, password, app } = userInfo
     return new Promise((resolve, reject) => {
-      login({ username: username.trim(), password: password }).then(response => {
+      login({ username: username.trim(), password: password, app: app }).then(response => {
         const { data } = response
+        console.log(data)
         commit('SET_TOKEN', data.token)
         setToken(data.token)
+        commit('SET_NAME', data.user.name)
+        commit('SET_AVATAR', data.user.logo)
         resolve()
       }).catch(error => {
         reject(error)
@@ -47,6 +50,7 @@ const actions = {
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
       getInfo(state.token).then(response => {
+        console.log(response)
         const { data } = response
 
         if (!data) {
@@ -54,7 +58,7 @@ const actions = {
         }
 
         const { name, avatar } = data
-
+        console.log(data)
         commit('SET_NAME', name)
         commit('SET_AVATAR', avatar)
         resolve(data)

@@ -53,7 +53,7 @@ module.exports = [
     type: 'get',
     response: config => {
       const { token } = config.query
-      const info = users[token]
+      const info = users['admin-token']
 
       // mock error
       if (!info) {
@@ -64,7 +64,10 @@ module.exports = [
       }
 
       return {
-        code: 20000,
+        head: {
+          code: 200
+        },
+        code: 200,
         data: info
       }
     }
@@ -76,7 +79,10 @@ module.exports = [
     type: 'post',
     response: _ => {
       return {
-        code: 20000,
+        head: {
+          code: 200
+        },
+        code: 200,
         data: 'success'
       }
     }

@@ -5,18 +5,27 @@
       <div class="title-container">
         <h3 class="title">Login Form</h3>
       </div>
-
+      <el-input
+        ref="app"
+        v-model="loginForm.app"
+        placeholder="所属系统标识"
+        name="app"
+        type="hidden"
+        tabindex="1"
+        auto-complete="on"
+        value="ZENITOO_ADMIN"
+      />
       <el-form-item prop="username">
         <span class="svg-container">
           <svg-icon icon-class="user" />
         </span>
         <el-input
           ref="username"
-          v-model="loginForm.username"
-          placeholder="Username"
+          v-model="loginForm.tel"
+          placeholder="手机号"
           name="username"
           type="text"
-          tabindex="1"
+          tabindex="2"
           auto-complete="on"
         />
       </el-form-item>
@@ -32,7 +41,7 @@
           :type="passwordType"
           placeholder="Password"
           name="password"
-          tabindex="2"
+          tabindex="3"
           auto-complete="on"
           @keyup.enter.native="handleLogin"
         />
@@ -74,8 +83,9 @@ export default {
     }
     return {
       loginForm: {
-        username: 'admin',
-        password: '111111'
+        username: '18349288343',
+        password: '111111',
+        app: 'ZENITOO_ADMIN'
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -110,10 +120,12 @@ export default {
         if (valid) {
           this.loading = true
           this.$store.dispatch('user/login', this.loginForm).then(() => {
+            //alert(this.redirect)
             this.$router.push({ path: this.redirect || '/' })
             this.loading = false
-          }).catch(() => {
+          }).catch((e) => {
             this.loading = false
+            console.log(e)
           })
         } else {
           console.log('error submit!!')
