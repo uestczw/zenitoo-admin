@@ -53,23 +53,35 @@ export const constantRoutes = [
     }]
   },
   {
-    path: '/cell',
+    path: '/sysdata',
     component: Layout,
-    redirect: '/cell/list', //重定向地址，在面包屑中点击会重定向去的地址
-    name: '小区管理',
-    meta: { title: '小区管理1', icon: 'el-icon-s-help' },
+    //redirect: '/cell/list', //重定向地址，在面包屑中点击会重定向去的地址
+    name: '基础数据管理',
+    meta: { title: '基础数据管理', icon: 'el-icon-s-help' },
     children: [
       {
-        path: 'list',
-        name: '小区列表1',
+        path: 'cell',
+        name: '小区管理',
         component: () => import('@/views/cell/list/index'),
-        meta: { title: '小区列表', icon: 'table' }
+        meta: { title: '小区管理', icon: 'table' }
       },
       {
-        path: 'tree',
-        name: 'Tree',
-        component: () => import('@/views/tree/index'),
-        meta: { title: '新增小区', icon: 'tree' }
+        path: 'carport',
+        name: '车棚管理',
+        component: () => import('@/views/carport/list/index'),
+        meta: { title: '车棚管理', icon: 'table' }
+      },
+      {
+        path: 'chargepost',
+        name: '充电桩管理',
+        component: () => import('@/views/chargepost/list/index'),
+        meta: { title: '充电桩管理', icon: 'table' }
+      },
+      {
+        path: 'cartype',
+        name: '车辆类型管理',
+        component: () => import('@/views/cartype/list/index'),
+        meta: { title: '车辆类型管理', icon: 'table' }
       }
     ]
 

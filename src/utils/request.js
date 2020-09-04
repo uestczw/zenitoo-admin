@@ -76,9 +76,9 @@ service.interceptors.response.use(
     }
   },
   error => {
-    console.log('err' + error) // for debug
+    console.log(error) // for debug
     Message({
-      message: error.message,
+      message: '网络异常请重试['+error.message+']',
       type: 'error',
       duration: 5 * 1000
     })
