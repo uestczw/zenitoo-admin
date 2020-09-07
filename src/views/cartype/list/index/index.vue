@@ -255,6 +255,7 @@ export default {
       console.log(row);
       this.form.row = row;
       this.form.car_type_name = row.car_type_name;
+      this.form.has_charge = row.has_charge+'';
       this.dialogFormVisible = true;
     },
     showCreatedTimes() {

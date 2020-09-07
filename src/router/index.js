@@ -82,6 +82,13 @@ export const constantRoutes = [
         name: '车辆类型管理',
         component: () => import('@/views/cartype/list/index'),
         meta: { title: '车辆类型管理', icon: 'table' }
+      },
+      {
+        path: 'carportdoor',
+        name: '门禁管理',
+        hidden:true,
+        component: () => import('@/views/carportdoor/list/index'),
+        meta: { title: '门禁管理', icon: 'table' }
       }
     ]
 

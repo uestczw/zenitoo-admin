@@ -57,6 +57,7 @@
             <el-button type="text" @click="handleEdit(scope.row)">编辑</el-button>
             <el-button v-if="scope.row.status == 1" type="text" @click="changeStatus(scope.row)">禁用</el-button>
             <el-button v-if="scope.row.status == 2" type="text" @click="changeStatus(scope.row)">启用</el-button>
+            <el-button type="text" @click="editDoor(scope.row)">门禁管理</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -73,7 +74,7 @@
       </div>
     </div>
 
-    <el-dialog title="添加车棚" :visible.sync="dialogFormVisible">
+    <el-dialog title="添加车棚" :visible.sync="dialogFormVisible" width="75%">
       <el-form :model="form" ref="form" :rules="cellRules">
         <el-row>
           <el-col :span="8">
@@ -273,6 +274,7 @@
             <el-col :span="2" align="center">至</el-col>
             <el-col :span="8">
               <el-input
+                placeholder="伏特"
                 oninput="value=value.replace(/[^\d]/g,'')"
                 ref="endV"
                 name="endV"
@@ -299,20 +301,69 @@
             :cell-style="{padding:3+'px'}"
             style=";border:1px solid #eeeeee;min-height:40px;"
           >
-            <el-table-column prop="start_power" label="最小伏数" width="100">
+            <el-table-column prop="start_power" label="最小伏数" width="80">
               <template slot-scope="scope">
                 <span>{{scope.row.start_power}}v</span>
               </template>
             </el-table-column>
-            <el-table-column prop="end_power" label="最大伏数" width="100">
+            <el-table-column prop="end_power" label="最大伏数" width="80">
               <template slot-scope="scope">
                 <span>{{scope.row.end_power}}v</span>
               </template>
             </el-table-column>
-            <el-table-column prop="charge_price" label="单月价格(元)" width="100">
+            <el-table-column prop="step_start_time" label="起步时长" width="90">
               <template slot-scope="scope">
                 <span>
                   <el-input
+                    placeholder="小时"
+                    oninput="value=value.replace(/[^\d]/g,'')"
+                    size="mini"
+                    v-model="scope.row.step_start_time"
+                  ></el-input>
+                </span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="step_start_price" label="起步价格" width="90">
+              <template slot-scope="scope">
+                <span>
+                  <el-input
+                    placeholder="元"
+                    oninput="value=value.replace(/[^\d.]/g,'')"
+                    size="mini"
+                    v-model="scope.row.step_start_price"
+                  ></el-input>
+                </span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="step_second_time" label="后续步长" width="90">
+              <template slot-scope="scope">
+                <span>
+                  <el-input
+                    placeholder="小时"
+                    oninput="value=value.replace(/[^\d]/g,'')"
+                    size="mini"
+                    v-model="scope.row.step_second_time"
+                  ></el-input>
+                </span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="step_second_price" label="后续价格" width="90">
+              <template slot-scope="scope">
+                <span>
+                  <el-input
+                    placeholder="元"
+                    oninput="value=value.replace(/[^\d.]/g,'')"
+                    size="mini"
+                    v-model="scope.row.step_second_price"
+                  ></el-input>
+                </span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="charge_price" label="单月价格" width="90">
+              <template slot-scope="scope">
+                <span>
+                  <el-input
+                    placeholder="元"
                     oninput="value=value.replace(/[^\d.]/g,'')"
                     size="mini"
                     v-model="scope.row.charge_price"
@@ -320,10 +371,11 @@
                 </span>
               </template>
             </el-table-column>
-            <el-table-column prop="valid_month" label="单月时长(小时)" width="120">
+            <el-table-column prop="valid_month" label="单月时长" width="90">
               <template slot-scope="scope">
                 <span>
                   <el-input
+                    placeholder="小时"
                     oninput="value=value.replace(/[^\d.]/g,'')"
                     size="mini"
                     v-model="scope.row.charge_time_len"
@@ -331,7 +383,31 @@
                 </span>
               </template>
             </el-table-column>
-            <el-table-column label="操作" min-width="110">
+            <el-table-column prop="max_time_len" label="单次时长" width="90">
+              <template slot-scope="scope">
+                <span>
+                  <el-input
+                    placeholder="小时"
+                    oninput="value=value.replace(/[^\d.]/g,'')"
+                    size="mini"
+                    v-model="scope.row.max_time_len"
+                  ></el-input>
+                </span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="power_threshold" label="最大电量" width="90">
+              <template slot-scope="scope">
+                <span>
+                  <el-input
+                    placeholder="度"
+                    oninput="value=value.replace(/[^\d.]/g,'')"
+                    size="mini"
+                    v-model="scope.row.power_threshold"
+                  ></el-input>
+                </span>
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" min-width="60">
               <template slot-scope="scope">
                 <el-button type="text" @click="powerdel(scope.row)">删除</el-button>
               </template>
@@ -643,6 +719,37 @@ export default {
           }
           if (!item.charge_time_len || item.charge_time_len === "") {
             alert("包月充电费用单月时长不能为空");
+            error = true;
+            throw Error();
+          }
+          if (!item.max_time_len || item.max_time_len === "") {
+            alert("包月充电费用单次最大充电时长不能为空");
+            error = true;
+            throw Error();
+          }
+          if (!item.power_threshold || item.power_threshold === "") {
+            alert("包月充电费用单次最大充电能量不能为空");
+            error = true;
+            throw Error();
+          }
+
+          if (!item.step_start_time || item.step_start_time === "") {
+            alert("包月充电费用起步时长不能为空");
+            error = true;
+            throw Error();
+          }
+          if (!item.step_start_price || item.step_start_price === "") {
+            alert("包月充电费用起步价格不能为空");
+            error = true;
+            throw Error();
+          }
+          if (!item.step_second_time || item.step_second_time === "") {
+            alert("包月充电费用后续步长不能为空");
+            error = true;
+            throw Error();
+          }
+          if (!item.step_second_price || item.step_second_price === "") {
+            alert("包月充电费用后续价格不能为空");
             error = true;
             throw Error();
           }
@@ -960,6 +1067,9 @@ export default {
           console.log(e);
         });
     },
+    editDoor(row){
+      this.$router.push({path:'/sysdata/carportdoor',query: {car_port_id:row.car_port_id}})
+    }
   },
 };
 </script>
