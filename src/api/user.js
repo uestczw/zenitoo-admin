@@ -2,7 +2,7 @@ import request from '@/utils/request'
 import concans from '@/utils/concans'
 export function login(data) {
   return request({
-    url: 'http://'+concans.host+'/zenitoo-user/manage/login',
+    url: concans.schema+'://'+concans.host+'/zenitoo-user/manage/login',
     method: 'post',
     data
   })

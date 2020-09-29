@@ -90,6 +90,7 @@
                 :remote-method="loadCell"
                 :loading="loading"
                 :label="form.cell_name"
+                @change="cellchange"
               >
                 <el-option
                   v-for="cell in cells"
@@ -166,7 +167,7 @@
           <el-col :span="12">
             <el-form-item label="一月折扣" :label-width="formLabelWidth" prop="discount_price_1">
               <el-input
-                @blur="checkzn('1')"
+                
                 oninput="value=value.replace(/[^\d.]/g,'')"
                 ref="discount_price_1"
                 name="discount_price_1"
@@ -182,7 +183,6 @@
           <el-col :span="12">
             <el-form-item label="三月折扣" :label-width="formLabelWidth" prop="discount_price_3">
               <el-input
-                @blur="checkzn('3')"
                 oninput="value=value.replace(/[^\d.]/g,'')"
                 ref="discount_price_3"
                 name="discount_price_3"
@@ -200,7 +200,6 @@
           <el-col :span="12">
             <el-form-item label="半年折扣" :label-width="formLabelWidth" prop="discount_price_6">
               <el-input
-                @blur="checkzn('6')"
                 oninput="value=value.replace(/[^\d.]/g,'')"
                 ref="form.discount_price_6"
                 name="form.discount_price_6"
@@ -216,7 +215,6 @@
           <el-col :span="12">
             <el-form-item label="一年折扣" :label-width="formLabelWidth" prop="discount_price_12">
               <el-input
-                @blur="checkzn('12')"
                 oninput="value=value.replace(/[^\d.]/g,'')"
                 ref="discount_price_12"
                 name="discount_price_12"
@@ -230,9 +228,14 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="包月停车费用" :label-width="formLabelWidth">
+        <el-row>
+            <el-col :span="17"><label style="float:left;width:120px;text-align:right;padding-right:12px;">包月停车费用</label></el-col>
+        </el-row>
+        <el-row>
+        <el-col :span="24">
+                <div style="width:100%;padding-left:120px;">
           <el-table
-            :data="cartypes"
+            :data="form.cartypes"
             :empty-text="emptytext"
             :row-style="{height:'40px'}"
             :cell-style="{padding:3+'px'}"
@@ -247,20 +250,22 @@
             <el-table-column label="单月价格(元)" width="300">
               <template slot-scope="scope">
                 <span v-if="scope.row.isCheck">
+                  <el-form-item :prop="'cartypes.'+scope.$index+'.stop_price'" :rules="cellRules.stop_price">
                   <el-input
                     oninput="value=value.replace(/[^\d.]/g,'')"
                     size="mini"
                     v-model="scope.row.stop_price"
                   ></el-input>
+                  </el-form-item>
                 </span>
                 <span v-else></span>
               </template>
             </el-table-column>
           </el-table>
-        </el-form-item>
-        <el-form-item label="包月充电费用" :label-width="formLabelWidth">
+                </div></el-col></el-row>
           <el-row>
-            <el-col :span="8">
+            <el-col :span="8"><label style="float:left;width:120px;text-align:right;padding-right:12px;">包月充电费用</label></el-col>
+            <el-col :span="4">
               <el-input
                 :disabled="true"
                 oninput="value=value.replace(/[^\d]/g,'')"
@@ -271,8 +276,8 @@
                 auto-complete="off"
               ></el-input>
             </el-col>
-            <el-col :span="2" align="center">至</el-col>
-            <el-col :span="8">
+            <el-col :span="2" align="center"><span style="line-height:40px;">至</span></el-col>
+            <el-col :span="4">
               <el-input
                 placeholder="伏特"
                 oninput="value=value.replace(/[^\d]/g,'')"
@@ -294,8 +299,11 @@
               </el-button>
             </el-col>
           </el-row>
+          <el-row>
+            <el-col :span="24">
+                <div style="width:100%;padding-left:120px;">
           <el-table
-            :data="powvers"
+            :data="form.powvers"
             :empty-text="emptytext"
             :row-style="{height:'40px'}"
             :cell-style="{padding:3+'px'}"
@@ -313,98 +321,98 @@
             </el-table-column>
             <el-table-column prop="step_start_time" label="起步时长" width="90">
               <template slot-scope="scope">
-                <span>
+                <el-form-item :prop="'powvers.'+scope.$index+'.step_start_time'" :rules="cellRules.mustinput">
                   <el-input
                     placeholder="小时"
                     oninput="value=value.replace(/[^\d]/g,'')"
                     size="mini"
                     v-model="scope.row.step_start_time"
                   ></el-input>
-                </span>
+                </el-form-item>
               </template>
             </el-table-column>
             <el-table-column prop="step_start_price" label="起步价格" width="90">
               <template slot-scope="scope">
-                <span>
+                <el-form-item :prop="'powvers.'+scope.$index+'.step_start_price'" :rules="cellRules.mustinput">
                   <el-input
                     placeholder="元"
                     oninput="value=value.replace(/[^\d.]/g,'')"
                     size="mini"
                     v-model="scope.row.step_start_price"
                   ></el-input>
-                </span>
+                </el-form-item>
               </template>
             </el-table-column>
             <el-table-column prop="step_second_time" label="后续步长" width="90">
               <template slot-scope="scope">
-                <span>
+                <el-form-item :prop="'powvers.'+scope.$index+'.step_second_time'" :rules="cellRules.mustinput">
                   <el-input
                     placeholder="小时"
                     oninput="value=value.replace(/[^\d]/g,'')"
                     size="mini"
                     v-model="scope.row.step_second_time"
                   ></el-input>
-                </span>
+                </el-form-item>
               </template>
             </el-table-column>
             <el-table-column prop="step_second_price" label="后续价格" width="90">
               <template slot-scope="scope">
-                <span>
+                <el-form-item :prop="'powvers.'+scope.$index+'.step_second_price'" :rules="cellRules.mustinput">
                   <el-input
                     placeholder="元"
                     oninput="value=value.replace(/[^\d.]/g,'')"
                     size="mini"
                     v-model="scope.row.step_second_price"
                   ></el-input>
-                </span>
+                </el-form-item>
               </template>
             </el-table-column>
             <el-table-column prop="charge_price" label="单月价格" width="90">
               <template slot-scope="scope">
-                <span>
+                <el-form-item :prop="'powvers.'+scope.$index+'.charge_price'" :rules="cellRules.mustinput">
                   <el-input
                     placeholder="元"
                     oninput="value=value.replace(/[^\d.]/g,'')"
                     size="mini"
                     v-model="scope.row.charge_price"
                   ></el-input>
-                </span>
+                </el-form-item>
               </template>
             </el-table-column>
             <el-table-column prop="valid_month" label="单月时长" width="90">
               <template slot-scope="scope">
-                <span>
+                <el-form-item :prop="'powvers.'+scope.$index+'.charge_time_len'" :rules="cellRules.mustinput">
                   <el-input
                     placeholder="小时"
                     oninput="value=value.replace(/[^\d.]/g,'')"
                     size="mini"
                     v-model="scope.row.charge_time_len"
                   ></el-input>
-                </span>
+                </el-form-item>
               </template>
             </el-table-column>
             <el-table-column prop="max_time_len" label="单次时长" width="90">
               <template slot-scope="scope">
-                <span>
+                <el-form-item :prop="'powvers.'+scope.$index+'.max_time_len'" :rules="cellRules.mustinput">
                   <el-input
                     placeholder="小时"
                     oninput="value=value.replace(/[^\d.]/g,'')"
                     size="mini"
                     v-model="scope.row.max_time_len"
                   ></el-input>
-                </span>
+                </el-form-item>
               </template>
             </el-table-column>
             <el-table-column prop="power_threshold" label="最大电量" width="90">
               <template slot-scope="scope">
-                <span>
+                <el-form-item :prop="'powvers.'+scope.$index+'.power_threshold'" :rules="cellRules.mustinput">
                   <el-input
                     placeholder="度"
                     oninput="value=value.replace(/[^\d.]/g,'')"
                     size="mini"
                     v-model="scope.row.power_threshold"
                   ></el-input>
-                </span>
+                </el-form-item>
               </template>
             </el-table-column>
             <el-table-column label="操作" min-width="60">
@@ -413,7 +421,7 @@
               </template>
             </el-table-column>
           </el-table>
-        </el-form-item>
+                </div></el-col></el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
@@ -449,6 +457,26 @@ export default {
     // }).catch((e) => {
     //   console.log(e)
     // })
+    var valid_month = (rule, value, callback) => {
+        //console.log(rule.month);
+        var key = 'edit_'+rule.month+'_status';
+        if (this.form[key]) {
+          if (value === '') {
+          callback(new Error('勾选必填'));
+        } else {
+          var patt = /^0$|^1$|^0\.\d+$/;
+          var f = patt.test(value);
+          if(!f){
+            callback(new Error('请输入0-1之间的小数'));
+          }else{
+            callback();
+          }
+        }
+        }else{
+          callback();
+        }
+        
+      };
     return {
       startV: 0,
       endV: "",
@@ -467,9 +495,7 @@ export default {
       searchStatus: "",
       chargeModes: [],
       hasCharges: { "1": "支持", "2": "不支持" },
-      cartypes: [],
       cartypescache: [],
-      powvers: [],
       form: {
         cell_id: "",
         cell_name: "",
@@ -487,6 +513,8 @@ export default {
         edit_3_status: false,
         edit_6_status: false,
         edit_12_status: false,
+        cartypes: [],
+        powvers: [],
         row: {},
       },
       cellRules: {
@@ -496,15 +524,21 @@ export default {
         deposit_money: [
           { required: true, trigger: "blur", message: "请输入进场押金" },
         ],
-        // discount_price_3: [
-        //   { required: true, trigger: "blur", message: "请输入3月折扣" },
-        // ],
-        // discount_price_6: [
-        //   { required: true, trigger: "blur", message: "请输入6月折扣" },
-        // ],
-        // discount_price_12: [
-        //   { required: true, trigger: "blur", message: "请输入12月折扣" },
-        // ],
+        discount_price_1: [
+          { validator: valid_month, trigger: "blur",month:1 },
+        ],
+        discount_price_3: [
+          { validator: valid_month, trigger: "blur",month:3 },
+        ],
+        discount_price_6: [
+          { validator: valid_month, trigger: "blur",month:6 },
+        ],
+        discount_price_12: [
+          { validator: valid_month, trigger: "blur",month:12 },
+        ],
+        stop_price: [
+          { required: true, trigger: "blur", message: "请输入包月费用" },
+        ],
         car_port_name: [
           { required: true, trigger: "blur", message: "请输入车棚名称" },
         ],
@@ -515,6 +549,7 @@ export default {
           { required: true, trigger: "change", message: "请选择是否支持充电" },
         ],
         cell_id: [{ required: true, trigger: "change", message: "请选择小区" }],
+        mustinput: [{ required: true, trigger: "blur", message: "必填" }],
       },
       emptytext: "暂无数据",
       pageInfo: {
@@ -555,36 +590,9 @@ export default {
     this.loadCartypes();
   },
   methods: {
-    checkzn(key) {
-      var patt = /^0$|^1$|^0\.\d+$/;
-      if (key === "1") {
-        var f = patt.test(this.form.discount_price_1);
-        if (!f) {
-          this.form.discount_price_1 = "";
-        }
-      }
-      if (key === "3") {
-        var f = patt.test(this.form.discount_price_3);
-        if (!f) {
-          this.form.discount_price_3 = "";
-        }
-      }
-      if (key === "6") {
-        var f = patt.test(this.form.discount_price_6);
-        if (!f) {
-          this.form.discount_price_6 = "";
-        }
-      }
-      if (key === "12") {
-        var f = patt.test(this.form.discount_price_12);
-        if (!f) {
-          this.form.discount_price_12 = "";
-        }
-      }
-    },
     getSysArea(pid, callback) {
       request({
-        url: "https://" + concans.host + "/car-port/sys/areaCode",
+        url: concans.schema+"://" + concans.host + "/car-port/sys/areaCode",
         timeout: 5000,
         method: "post",
         data: { pid: pid },
@@ -599,7 +607,7 @@ export default {
     },
     loadChargeMode() {
       request({
-        url: "https://" + concans.host + "/car-port/sys/sysConf",
+        url: concans.schema+"://" + concans.host + "/car-port/sys/sysConf",
         timeout: 5000,
         method: "post",
         params: { key_type: "charge_mode" },
@@ -614,14 +622,14 @@ export default {
     },
     loadCartypes() {
       request({
-        url: "https://" + concans.host + "/car-port/cartype/getList",
+        url: concans.schema+"://" + concans.host + "/car-port/cartype/getList",
         timeout: 5000,
         method: "post",
         params: { pageNo: 1, pageSize: 100 },
       })
         .then((res) => {
           console.log(res);
-          this.cartypes = res.data.rows;
+          this.form.cartypes = res.data.rows;
           this.cartypescache = res.data.rows;
         })
         .catch((e) => {
@@ -632,9 +640,17 @@ export default {
       if (this.endV === "" || this.endV > 100 || this.endV < this.startV) {
         return false;
       }
-      this.powvers.push({
+      this.form.powvers.push({
         start_power: this.startV,
         end_power: this.endV,
+        step_start_time:'',
+        step_start_price:'',
+        step_second_time:'',
+        step_second_price:'',
+        charge_price:'',
+        valid_month:'',
+        max_time_len:'',
+        power_threshold:'',
       });
       this.startV = this.endV - 0;
       this.startV = this.startV + 1;
@@ -642,15 +658,15 @@ export default {
     },
     powerdel(row) {
       var tmppowver = [];
-      this.powvers.forEach((item) => {
+      this.form.powvers.forEach((item) => {
         if (item.start_power < row.start_power) {
           tmppowver.push(item);
         }
       });
-      this.powvers = tmppowver;
+      this.form.powvers = tmppowver;
       var tmpStartV = 0;
-      if (this.powvers.length > 0) {
-        tmpStartV = this.powvers[this.powvers.length - 1].end_power - 0;
+      if (this.form.powvers.length > 0) {
+        tmpStartV = this.form.powvers[this.form.powvers.length - 1].end_power - 0;
         tmpStartV = tmpStartV + 1;
       }
       this.startV = tmpStartV;
@@ -684,136 +700,40 @@ export default {
           isCheck: false,
         });
       });
-      this.cartypes = tmpct;
-      this.powvers = [];
+      this.form.cartypes = tmpct;
+      this.form.powvers = [];
       this.startV = 0;
       this.endV = "";
     },
     handleSubmit() {
       var stop_price_json = [];
-      if (this.powvers.length <= 0) {
-        alert("请配置包月充电费用");
+      if (this.form.powvers.length <= 0) {
+        this.$message.error('请配置包月充电费用');
         return false;
       }
-      if (this.powvers[0].start_power !== 0) {
-        alert("包月充电费用第一条最小伏数必须为1");
+      if (this.form.powvers[0].start_power !== 0) {
+        this.$message.error('包月充电费用第一条最小伏数必须为1');
         return false;
       }
       if (
-        this.powvers[this.powvers.length - 1].end_power !== "100" &&
-        this.powvers[this.powvers.length - 1].end_power !== 100
+        this.form.powvers[this.form.powvers.length - 1].end_power !== "100" &&
+        this.form.powvers[this.form.powvers.length - 1].end_power !== 100
       ) {
-        alert(
-          "包月充电费用最后一条最大伏数必须为100" +
-            this.powvers[this.powvers.length - 1].end_power
-        );
+        this.$message.error('包月充电费用最后一条最大伏数必须为100');
         return false;
       }
-      var error = false;
-      try {
-        this.powvers.forEach((item) => {
-          if (!item.charge_price || item.charge_price === "") {
-            alert("包月充电费用单月费用不能为空");
-            error = true;
-            throw Error();
-          }
-          if (!item.charge_time_len || item.charge_time_len === "") {
-            alert("包月充电费用单月时长不能为空");
-            error = true;
-            throw Error();
-          }
-          if (!item.max_time_len || item.max_time_len === "") {
-            alert("包月充电费用单次最大充电时长不能为空");
-            error = true;
-            throw Error();
-          }
-          if (!item.power_threshold || item.power_threshold === "") {
-            alert("包月充电费用单次最大充电能量不能为空");
-            error = true;
-            throw Error();
-          }
-
-          if (!item.step_start_time || item.step_start_time === "") {
-            alert("包月充电费用起步时长不能为空");
-            error = true;
-            throw Error();
-          }
-          if (!item.step_start_price || item.step_start_price === "") {
-            alert("包月充电费用起步价格不能为空");
-            error = true;
-            throw Error();
-          }
-          if (!item.step_second_time || item.step_second_time === "") {
-            alert("包月充电费用后续步长不能为空");
-            error = true;
-            throw Error();
-          }
-          if (!item.step_second_price || item.step_second_price === "") {
-            alert("包月充电费用后续价格不能为空");
-            error = true;
-            throw Error();
-          }
-        });
-      } catch (e) {}
-
-      if (error) {
-        return false;
-      }
-
-      try {
-        this.cartypes.forEach((item) => {
+      this.form.cartypes.forEach((item) => {
           if (item.isCheck) {
-            if (!item.stop_price || item.stop_price === "") {
-              alert("包月停车费用单月费用不能为空");
-              error = true;
-              throw Error();
-            }
             stop_price_json.push(item);
           }
         });
-      } catch (e) {}
-      if (error) {
-        return false;
-      }
-      var count = 0;
       var discount_price = {};
-      if (this.form.edit_1_status) {
-        if (!this.form.discount_price_1 || this.form.discount_price_1 === "") {
-          alert("请输入1月折扣");
-          return false;
-        }
-        discount_price["1"] = this.form.discount_price_1;
-        count++;
-      }
-      if (this.form.edit_3_status) {
-        if (!this.form.discount_price_3 || this.form.discount_price_3 === "") {
-          alert("请输入3月折扣");
-          return false;
-        }
-        discount_price["3"] = this.form.discount_price_3;
-        count++;
-      }
-      if (this.form.edit_6_status) {
-        if (!this.form.discount_price_6 || this.form.discount_price_6 === "") {
-          alert("请输入6月折扣");
-          return false;
-        }
-        discount_price["6"] = this.form.discount_price_6;
-        count++;
-      }
-      if (this.form.edit_12_status) {
-        if (
-          !this.form.discount_price_12 ||
-          this.form.discount_price_12 === ""
-        ) {
-          alert("请输入12月折扣");
-          return false;
-        }
-        discount_price["12"] = this.form.discount_price_12;
-        count++;
-      }
-      if (count === 0) {
-        alert("请至少选择一种折扣");
+      discount_price["1"] = this.form.discount_price_1;
+      discount_price["3"] = this.form.discount_price_3;
+      discount_price["6"] = this.form.discount_price_6;
+      discount_price["12"] = this.form.discount_price_12;
+      if (!this.form.edit_1_status&&!this.form.edit_3_status&&!this.form.edit_6_status&&!this.form.edit_12_status) {
+        this.$message.error('请至少选择一种折扣');
         return false;
       }
       this.$refs.form.validate((valid) => {
@@ -821,7 +741,7 @@ export default {
           if (this.form.row.car_port_id) {
             console.log(this.form);
             request({
-              url: "https://" + concans.host + "/car-port/carport/update",
+              url: concans.schema+"://" + concans.host + "/car-port/carport/update",
               method: "post",
               data: {
                 interval_rate: this.form.interval_rate,
@@ -833,7 +753,7 @@ export default {
                 car_port_id: this.form.row.car_port_id,
                 has_charge: this.form.has_charge,
                 stop_price_json: stop_price_json,
-                charge_price_json: this.powvers,
+                charge_price_json: this.form.powvers,
                 discount_price: discount_price,
               },
             })
@@ -847,7 +767,7 @@ export default {
               });
           } else {
             request({
-              url: "https://" + concans.host + "/car-port/carport/add",
+              url: concans.schema+"://" + concans.host + "/car-port/carport/add",
               method: "post",
               data: {
                 interval_rate: this.form.interval_rate,
@@ -858,7 +778,7 @@ export default {
                 cell_id: this.form.cell_id,
                 status: 1,
                 stop_price_json: stop_price_json,
-                charge_price_json: this.powvers,
+                charge_price_json: this.form.powvers,
                 discount_price: discount_price,
               },
             })
@@ -895,7 +815,7 @@ export default {
       console.log(status);
       request({
         url:
-          "https://" + concans.host + "/car-port/stoppackage/changeStatusSys",
+          concans.schema+"://" + concans.host + "/car-port/stoppackage/changeStatusSys",
         method: "post",
         data: {
           car_port_id: row.car_port_id,
@@ -932,7 +852,7 @@ export default {
           spm[item.car_type_id] = item;
         });
       }
-      this.cartypes.forEach((item) => {
+      this.form.cartypes.forEach((item) => {
         if (spm[item.car_type_id]) {
           item.isCheck = true;
           item.stop_price = spm[item.car_type_id].stop_price;
@@ -959,13 +879,13 @@ export default {
           });
         }
       });
-      this.cartypes = tmpct;
+      this.form.cartypes = tmpct;
       if (row.charge_price_json && row.charge_price_json.length > 0) {
-        this.powvers = row.charge_price_json;
+        this.form.powvers = row.charge_price_json;
         this.startV = 101;
         this.endV = "";
       } else {
-        this.powvers = [];
+        this.form.powvers = [];
         this.startV = 0;
         this.endV = "";
       }
@@ -1016,7 +936,7 @@ export default {
     loadCell(value) {
       console.log("loadCell" + value);
       request({
-        url: "https://" + concans.host + "/car-port/cell/getList",
+        url: concans.schema+"://" + concans.host + "/car-port/cell/getList",
         method: "get",
         params: { pageNo: 1, pageSize: 10, cell_name: value },
       })
@@ -1032,7 +952,7 @@ export default {
       obj = this.cells.find((item) => {
         return item.cell_id === value;
       });
-      this.form.carport_name = obj.cell_name + "智能车棚";
+      this.form.car_port_name = obj.cell_name + "智能车棚";
       console.log(obj.cell_name);
     },
     // 获取 表格数据
@@ -1053,7 +973,7 @@ export default {
       data.district_code = district_code;
       console.log(data);
       request({
-        url: "https://" + concans.host + "/car-port/carport/getList",
+        url: concans.schema+"://" + concans.host + "/car-port/carport/getList",
         method: "get",
         params: data,
       })

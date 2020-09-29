@@ -89,111 +89,71 @@ export const constantRoutes = [
         hidden:true,
         component: () => import('@/views/carportdoor/list/index'),
         meta: { title: '门禁管理', icon: 'table' }
-      }
-    ]
-
-  },
-  {
-    path: '/example',
-    component: Layout,
-    redirect: '/example/table',
-    name: 'Example',
-    meta: { title: 'Example', icon: 'el-icon-s-help' },
-    children: [
-      {
-        path: 'table',
-        name: 'Table',
-        component: () => import('@/views/table/index'),
-        meta: { title: 'Table', icon: 'table' }
       },
       {
-        path: 'tree',
-        name: 'Tree',
-        component: () => import('@/views/tree/index'),
-        meta: { title: 'Tree', icon: 'tree' }
-      }
-    ]
-  },
-
-  {
-    path: '/form',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        name: 'Form',
-        component: () => import('@/views/form/index'),
-        meta: { title: 'Form', icon: 'form' }
-      }
-    ]
-  },
-
-  {
-    path: '/nested',
-    component: Layout,
-    redirect: '/nested/menu1',
-    name: 'Nested',
-    meta: {
-      title: 'Nested',
-      icon: 'nested'
-    },
-    children: [
-      {
-        path: 'menu1',
-        component: () => import('@/views/nested/menu1/index'), // Parent router-view
-        name: 'Menu1',
-        meta: { title: 'Menu1' },
-        children: [
-          {
-            path: 'menu1-1',
-            component: () => import('@/views/nested/menu1/menu1-1'),
-            name: 'Menu1-1',
-            meta: { title: 'Menu1-1' }
-          },
-          {
-            path: 'menu1-2',
-            component: () => import('@/views/nested/menu1/menu1-2'),
-            name: 'Menu1-2',
-            meta: { title: 'Menu1-2' },
-            children: [
-              {
-                path: 'menu1-2-1',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1'),
-                name: 'Menu1-2-1',
-                meta: { title: 'Menu1-2-1' }
-              },
-              {
-                path: 'menu1-2-2',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-2'),
-                name: 'Menu1-2-2',
-                meta: { title: 'Menu1-2-2' }
-              }
-            ]
-          },
-          {
-            path: 'menu1-3',
-            component: () => import('@/views/nested/menu1/menu1-3'),
-            name: 'Menu1-3',
-            meta: { title: 'Menu1-3' }
-          }
-        ]
+        path: 'syscard',
+        name: '系统卡片管理',
+        component: () => import('@/views/syscard/list/index'),
+        meta: { title: '系统卡片管理', icon: 'table' }
       },
       {
-        path: 'menu2',
-        component: () => import('@/views/nested/menu2/index'),
-        name: 'Menu2',
-        meta: { title: 'menu2' }
+        path: 'contract',
+        name: '合同管理',
+        component: () => import('@/views/contract/list/index'),
+        meta: { title: '合同管理', icon: 'table' }
+      },
+      {
+        path: 'deviceLog',
+        name: '设备日志管理',
+        component: () => import('@/views/deviceLog/list/index'),
+        meta: { title: '设备日志管理', icon: 'table' }
+      }
+    ]
+
+  },
+  {
+    path: '/money',
+    component: Layout,
+    name: '资金管理',
+    meta: { title: '资金管理', icon: 'link' },
+    children: [
+      {
+        path: 'payorder',
+        name: '补单管理',
+        component: () => import('@/views/payorder/list/index'),
+        meta: { title: '补单管理', icon: 'table' }
+      },
+      {
+        path: 'refund',
+        name: '用户退款管理',
+        component: () => import('@/views/refund/list/index'),
+        meta: { title: '用户退款管理', icon: 'table' }
       }
     ]
   },
-
   {
-    path: 'external-link',
+    path: '/user',
     component: Layout,
+    name: '用户管理',
+    meta: { title: '用户管理', icon: 'nested' },
     children: [
       {
-        path: 'https://panjiachen.github.io/vue-element-admin-site/#/',
-        meta: { title: 'External Link', icon: 'link' }
+        path: 'merchant',
+        name: '商户管理',
+        component: () => import('@/views/merchant/list/index'),
+        meta: { title: '商户管理', icon: 'nested' }
+      },
+      {
+        path: 'cards',
+        name: '用户卡片管理',
+        component: () => import('@/views/cards/list/index'),
+        meta: { title: '用户卡片管理', icon: 'nested' }
+      },
+      {
+        path: 'user',
+        name: '员工账户管理',
+        component: () => import('@/views/user/list/index'),
+        meta: { title: '员工账户管理', icon: 'table' }
       }
     ]
   },

@@ -300,7 +300,7 @@ export default {
   methods: {
     getSysArea(pid, callback) {
       request({
-        url: "https://" + concans.host + "/car-port/sys/areaCode",
+        url: concans.schema+"://" + concans.host + "/car-port/sys/areaCode",
         timeout: 5000,
         method: "post",
         data: { pid: pid },
@@ -363,7 +363,7 @@ export default {
         if (valid) {
           if (this.form.row.cell_id) {
             request({
-              url: "https://" + concans.host + "/car-port/cell/update",
+              url: concans.schema+"://" + concans.host + "/car-port/cell/update",
               method: "post",
               data: {
                 cell_name: this.form.cell_name,
@@ -385,7 +385,7 @@ export default {
               });
           } else {
             request({
-              url: "https://" + concans.host + "/car-port/cell/add",
+              url: concans.schema+"://" + concans.host + "/car-port/cell/add",
               method: "post",
               data: {
                 cell_name: this.form.cell_name,
@@ -428,7 +428,7 @@ export default {
       this.dialogVisible = false;
       console.log(status);
       request({
-        url: "https://" + concans.host + "/car-port/cell/update",
+        url: concans.schema+"://" + concans.host + "/car-port/cell/update",
         method: "post",
         data: {
           cell_name: row.cell_name,
@@ -497,7 +497,7 @@ export default {
       data.district_code = district_code;
       console.log(data);
       request({
-        url: "https://" + concans.host + "/car-port/cell/getList",
+        url: concans.schema+"://" + concans.host + "/car-port/cell/getList",
         method: "get",
         params: data,
       })

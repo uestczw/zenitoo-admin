@@ -50,7 +50,7 @@ service.interceptors.response.use(
       Message({
         message: res.head.msg || 'Error',
         type: 'error',
-        duration: 5 * 1000
+        duration: 10 * 1000
       })
       if(res.head.code === 10001){
         removeToken() // must remove  token  first

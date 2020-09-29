@@ -78,6 +78,7 @@
     </el-dialog>
 
     <el-dialog title="部件管理" :visible.sync="dialogFormPartVisible">
+      <el-form :model="form" ref="form" :rules="cellRules">
           <el-row>
             <el-col :span="24">
               <el-button
@@ -92,7 +93,7 @@
           </el-row>
           <label>部件管理</label>
           <el-table
-            :data="parts"
+            :data="form.parts"
             :empty-text="emptytext"
             :row-style="{height:'40px'}"
             :cell-style="{padding:3+'px'}"
@@ -100,16 +101,17 @@
           >
             <el-table-column prop="part_device_sn" label="部件编码" width="160">
               <template slot-scope="scope">
-                <span>
+                <el-form-item :prop="'parts.'+scope.$index+'.part_device_sn'" :rules="cellRules.mustinput">
                   <el-input
                     size="mini"
                     v-model="scope.row.part_device_sn"
                   ></el-input>
-                </span>
+                </el-form-item>
               </template>
             </el-table-column>
             <el-table-column prop="door_part_type" label="部件类型" width="160">
               <template slot-scope="scope">
+                <el-form-item :prop="'parts.'+scope.$index+'.door_part_type'" :rules="cellRules.mustinput">
                 <el-select size="mini" v-model="scope.row.door_part_type" filterable placeholder="请选择">
                 <el-option
                   v-for="(value, key) in partTypes"
@@ -118,16 +120,17 @@
                   :value="key"
                 ></el-option>
               </el-select>
+              </el-form-item>
               </template>
             </el-table-column>
             <el-table-column prop="part_name" label="部件名称" width="160">
               <template slot-scope="scope">
-                <span>
+                <el-form-item :prop="'parts.'+scope.$index+'.part_name'" :rules="cellRules.mustinput">
                   <el-input
                     size="mini"
                     v-model="scope.row.part_name"
                   ></el-input>
-                </span>
+                </el-form-item>
               </template>
             </el-table-column>
             <el-table-column label="操作" min-width="160">
@@ -150,7 +153,7 @@
           </el-row>
           <label>二维码管理</label>
           <el-table
-            :data="qr_codes"
+            :data="form.qr_codes"
             :empty-text="emptytext"
             :row-style="{height:'40px'}"
             :cell-style="{padding:3+'px'}"
@@ -158,16 +161,17 @@
           >
             <el-table-column prop="code_sn" label="二维码编码" width="160">
               <template slot-scope="scope">
-                <span>
+                <el-form-item :prop="'qr_codes.'+scope.$index+'.code_sn'" :rules="cellRules.mustinput">
                   <el-input
                     size="mini"
                     v-model="scope.row.code_sn"
                   ></el-input>
-                </span>
+                </el-form-item>
               </template>
             </el-table-column>
             <el-table-column prop="trace_type" label="二维码类型" width="160">
               <template slot-scope="scope">
+                <el-form-item :prop="'qr_codes.'+scope.$index+'.trace_type'" :rules="cellRules.mustinput">
                 <el-select size="mini" v-model="scope.row.trace_type" filterable placeholder="请选择">
                 <el-option
                   ref="scope.row.trace_type"
@@ -180,14 +184,17 @@
                   :value="2"
                 ></el-option>
               </el-select>
+              </el-form-item>
               </template>
             </el-table-column>
             <el-table-column label="操作" min-width="160">
               <template slot-scope="scope">
                 <el-button type="text" @click="codedel(scope.row)">删除</el-button>
+                <el-button type="text" @click="showewm(scope.row)">二维码</el-button>
               </template>
             </el-table-column>
           </el-table>
+          </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormPartVisible = false">取 消</el-button>
         <el-button type="primary" @click="partSubmit">确 定</el-button>
@@ -200,6 +207,14 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="statusSubmit">确 定</el-button>
+      </span>
+    </el-dialog>
+
+    <el-dialog title="二维码" :visible.sync="dialogEwm" width="340px">
+      <img :src="ewmurl" width="300px" height="300px" />
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogEwm = false">取 消</el-button>
+        <el-button type="primary" @click="loadewm">下载二维码</el-button>
       </span>
     </el-dialog>
   </div>
@@ -221,6 +236,8 @@ export default {
     // })
     return {
       dialogFormPartVisible: false,
+      dialogEwm: false,
+      ewmurl: "",
       loading: false,
       carports: [],
       timeout: null,
@@ -231,11 +248,11 @@ export default {
       formLabelWidth: "120px",
       searchName: "",
       partTypes: [],
-      parts:[],
-      qr_codes:[],
       door_part_seq:0,
       qr_code_seq: 0,
       form: {
+        parts:[],
+        qr_codes:[],
         car_port_id: "",
         door_name: '',
         status: "",
@@ -244,6 +261,9 @@ export default {
       cellRules: {
         door_name: [
           { required: true, trigger: "blur", message: "请输入名称" },
+        ],
+        mustinput: [
+          { required: true, trigger: "blur", message: "必填" },
         ],
       },
       emptytext: "暂无数据",
@@ -271,9 +291,18 @@ export default {
     this.getData({});
   },
   methods: {
+    showewm(row) {
+      var url = concans.schema+"://" + concans.host+'/zenitoo-user/qrcode/load?code_sn=' + row.code_sn;
+      this.dialogEwm = true;
+      this.ewmurl = url;
+    },
+    loadewm(code_sn) {
+      window.open(this.ewmurl, 'target=_blank');
+      this.dialogEwm = false;
+    },
     partEdit(row){
       request({
-        url: "https://" + concans.host + "/car-port/carportdoor/getDoorPartList",
+        url: concans.schema+"://" + concans.host + "/car-port/carportdoor/getDoorPartList",
         timeout: 5000,
         method: "post",
         params: { door_id: row.door_id },
@@ -282,13 +311,13 @@ export default {
           this.qr_code_seq = 0;
           this.door_part_seq = 0;
           console.log(res);
-          this.parts = res.data.part;
-          this.parts.forEach((item)=>{
+          this.form.parts = res.data.part;
+          this.form.parts.forEach((item)=>{
               item.door_part_seq = this.door_part_seq;
               this.door_part_seq++;
           });
-          this.qr_codes = res.data.qr_code;
-          this.qr_codes.forEach((item)=>{
+          this.form.qr_codes = res.data.qr_code;
+          this.form.qr_codes.forEach((item)=>{
               item.qr_code_seq = this.qr_code_seq;
               this.qr_code_seq++;
           });
@@ -300,7 +329,7 @@ export default {
         });
     },
     addPart(){
-      this.parts.push({
+      this.form.parts.push({
         //door_id: this.door_id_tmp,
         door_part_seq: this.door_part_seq
       });
@@ -308,15 +337,15 @@ export default {
     },
     partdel(row){
       var tmps = [];
-      this.parts.forEach((item)=>{
+      this.form.parts.forEach((item)=>{
         if(row.door_part_seq !== item.door_part_seq){
           tmps.push(item)
         }
       })
-      this.parts = tmps;
+      this.form.parts = tmps;
     },
     addCode(){
-      this.qr_codes.push({
+      this.form.qr_codes.push({
         //door_id: this.door_id_tmp,
         qr_code_seq: this.qr_code_seq
       });
@@ -324,66 +353,68 @@ export default {
     },
     codedel(row){
       var tmps = [];
-      this.qr_codes.forEach((item)=>{
+      this.form.qr_codes.forEach((item)=>{
         if(row.qr_code_seq !== item.qr_code_seq){
           tmps.push(item)
         }
       })
-      this.qr_codes = tmps;
+      this.form.qr_codes = tmps;
     },
     partSubmit() {
-      var error = false;
-      try {
-        this.parts.forEach((item)=>{
-          if(!item.part_device_sn || item.part_device_sn === ""){
-            alert("请填写部件编码");
-            error = true;
-            throw Error();
-          }
-          if(!item.part_name || item.part_name === ""){
-            alert("请填写部件名称");
-            error = true;
-            throw Error();
-          }
-          if(!item.door_part_type || item.door_part_type === ""){
-            alert("请选择部件类型");
-            error = true;
-            throw Error();
-          }
-        })
-        this.qr_codes.forEach((item)=>{
-          if(!item.code_sn || item.code_sn === ""){
-            alert("请填写二维码编码");
-            error = true;
-            throw Error();
-          }
-          if(!item.trace_type || item.trace_type === ""){
-            alert("请选择二维码类型");
-            error = true;
-            throw Error();
-          }
-        })
-      } catch (e) {}
-      if (error) {
-        return false;
-      }
-      if(this.qr_codes.length!==0&&this.qr_codes.length!=2){
-        alert("请同时填写进门和出门二维码");
-        return false;
-      }
-      if(this.qr_codes.length!==0&&this.qr_codes[0].trace_type === this.qr_codes[1].trace_type){
-        alert("二维码不能同时为进门或出门");
-        return false;
-      }
-      if(this.qr_codes.length!==0&&this.qr_codes[0].code_sn === this.qr_codes[1].code_sn){
-        alert("进门和出门二维码编号不能相同");
-        return false;
-      }
+      // var error = false;
+      // try {
+        // this.form.parts.forEach((item)=>{
+        //   if(!item.part_device_sn || item.part_device_sn === ""){
+        //     this.$message.error('请填写部件编码');
+        //     error = true;
+        //     throw Error();
+        //   }
+        //   if(!item.part_name || item.part_name === ""){
+        //     this.$message.error('请填写部件名称');
+        //     error = true;
+        //     throw Error();
+        //   }
+        //   if(!item.door_part_type || item.door_part_type === ""){
+        //     this.$message.error('请选择部件类型');
+        //     error = true;
+        //     throw Error();
+        //   }
+        // })
+      //   this.form.qr_codes.forEach((item)=>{
+      //     if(!item.code_sn || item.code_sn === ""){
+      //       this.$message.error('请填写二维码编码');
+      //       error = true;
+      //       throw Error();
+      //     }
+      //     if(!item.trace_type || item.trace_type === ""){
+      //       this.$message.error('请选择二维码类型');
+      //       error = true;
+      //       throw Error();
+      //     }
+      //   })
+      // } catch (e) {}
+      // if (error) {
+      //   return false;
+      // }
+      // if(this.form.qr_codes.length!==0&&this.form.qr_codes.length!=2){
+      //   this.$message.error('请同时填写进门和出门二维码');
+      //   return false;
+      // }
+      // if(this.form.qr_codes.length!==0&&this.form.qr_codes[0].trace_type === this.form.qr_codes[1].trace_type){
+      //   this.$message.error('二维码不能同时为进门或出门');
+      //   return false;
+      // }
+      // if(this.form.qr_codes.length!==0&&this.form.qr_codes[0].code_sn === this.form.qr_codes[1].code_sn){
+      //   this.$message.error('进门和出门二维码编号不能相同');
+      //   return false;
+      // }
+      this.$refs.form.validate((valid) => {
+        if (valid) {
       request({
-        url: "https://" + concans.host + "/car-port/carportdoor/addDoorPart",
+        url: concans.schema+"://" + concans.host + "/car-port/carportdoor/addDoorPart",
         timeout: 5000,
         method: "post",
-        data: {part:this.parts,qr_code:this.qr_codes,door_id:this.door_id_tmp},
+        data: {part:this.form.parts,qr_code:this.form.qr_codes,door_id:this.door_id_tmp},
       })
         .then((res) => {
           console.log(res);
@@ -391,11 +422,14 @@ export default {
         })
         .catch((e) => {
           console.log(e);
-        });
+        });} else {
+          return false;
+        }
+      });
     },
     loadPartTypes(){
         request({
-        url: "https://" + concans.host + "/car-port/sys/sysConf",
+        url: concans.schema+"://" + concans.host + "/car-port/sys/sysConf",
         timeout: 5000,
         method: "post",
         params: { key_type: "door_part_type" },
@@ -420,7 +454,7 @@ export default {
           if (this.form.row.car_port_id) {
             console.log(this.form)
             request({
-              url: "https://" + concans.host + "/car-port/carportdoor/update",
+              url: concans.schema+"://" + concans.host + "/car-port/carportdoor/update",
               method: "post",
               data: {
                 car_port_id: this.form.car_port_id,
@@ -439,7 +473,7 @@ export default {
               });
           } else {
             request({
-              url: "https://" + concans.host + "/car-port/carportdoor/add",
+              url: concans.schema+"://" + concans.host + "/car-port/carportdoor/add",
               method: "post",
               data: {
                 car_port_id: this.form.car_port_id,
@@ -479,7 +513,7 @@ export default {
       this.dialogVisible = false;
       console.log(status);
       request({
-        url: "https://" + concans.host + "/car-port/carportdoor/delete",
+        url: concans.schema+"://" + concans.host + "/car-port/carportdoor/delete",
         method: "post",
         data: {
           door_id: row.door_id
@@ -521,9 +555,10 @@ export default {
       data.pageSize = this.pageInfo.pageSize;
       data.pageNo = this.pageInfo.current_page;
       data.car_port_name = this.searchName;
+      data.car_port_id = this.form.car_port_id;
       console.log(data);
       request({
-        url: "https://" + concans.host + "/car-port/carportdoor/getList",
+        url: concans.schema+"://" + concans.host + "/car-port/carportdoor/getList",
         method: "get",
         params: data,
       })

@@ -90,7 +90,7 @@ export default {
     },
     getSysArea(pid, callback) {
       request({
-        url: "https://" + concans.host + "/car-port/sys/areaCode",
+        url: concans.schema+"://" + concans.host + "/car-port/sys/areaCode",
         timeout: 5000,
         method: "post",
         data: { pid: pid },

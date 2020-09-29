@@ -6,17 +6,10 @@
       <div style="padding-bottom:10px;padding-top:10px;float:left;width:100%;">
         <el-row>
           <el-col :span="3">
-            <div style="margin-top:3px;margin-left:0;font-size:18px;text-align:center;">车辆类型管理</div>
-          </el-col>
-          <el-col :span="3" align="center">
-            <el-select v-model="searchStatus" placeholder="状态" style="width:120px;">
-              <el-option label="全部状态" value></el-option>
-              <el-option label="启用" value="1"></el-option>
-              <el-option label="停用" value="2"></el-option>
-            </el-select>
+            <div style="margin-top:3px;margin-left:0;font-size:18px;text-align:center;">员工账户管理</div>
           </el-col>
           <el-col :span="4">
-            <el-input placeholder="类型名称" v-model="searchName" class="input-with-select">
+            <el-input placeholder="手机号" v-model="searchName" class="input-with-select">
               <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
             </el-input>
           </el-col>
@@ -39,16 +32,17 @@
         :cell-style="{padding:0+'px'}"
         style="width: 94%;margin-left:3%;border:1px solid #eeeeee;min-height:40px;"
       >
-        <el-table-column prop="car_type_id" label="类型id" width="180"></el-table-column>
-        <el-table-column prop="car_type_name" label="类型名称" width="180"></el-table-column>
-        <el-table-column prop="has_charge" label="是否支持充电">
-          <template slot-scope="scope">{{hasCharges[scope.row.has_charge]}}</template>
+        <el-table-column prop="employee_mobile" label="手机号" width="200"></el-table-column>
+        <el-table-column prop="user_type" label="账户类型" width="200">
+          <template slot-scope="scope">
+              <span v-if="scope.row.user_type == 'employee'">员工</span>
+              <span v-if="scope.row.user_type == 'admin'">管理员</span>
+          </template>
         </el-table-column>
         <el-table-column label="操作" min-width="110">
           <template slot-scope="scope">
             <el-button type="text" @click="handleEdit(scope.row)">编辑</el-button>
-            <el-button v-if="scope.row.status == 1" type="text" @click="changeStatus(scope.row)">禁用</el-button>
-            <el-button v-if="scope.row.status == 2" type="text" @click="changeStatus(scope.row)">启用</el-button>
+            <el-button type="text" @click="delEdit(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -65,27 +59,57 @@
       </div>
     </div>
 
-    <el-dialog title="添加类型" :visible.sync="dialogFormVisible">
+    <el-dialog title="账户详情" :visible.sync="dialogFormVisible">
       <el-form :model="form" ref="form" :rules="cellRules">
-        <el-form-item label="名称" :label-width="formLabelWidth" prop="car_type_name">
+        <el-col :span="12">
+              <el-form-item label="手机号" :label-width="formLabelWidth" prop="employee_mobile">
           <el-input
-            ref="car_type_name"
-            name="car_type_name"
+            ref="employee_mobile"
+            name="employee_mobile"
             tabindex="1"
-            v-model="form.car_type_name"
+            v-model="form.employee_mobile"
             auto-complete="off"
           ></el-input>
         </el-form-item>
-        <el-form-item label="是否支持充电" :label-width="formLabelWidth" prop="has_charge">
-              <el-select v-model="form.has_charge" filterable placeholder="请选择">
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="账户类型" :label-width="formLabelWidth" prop="user_type">
+              <el-select v-model="form.user_type" filterable placeholder="请选择">
                 <el-option
-                  v-for="(value, key) in hasCharges"
-                  ref="form.has_charge"
-                  :label="value"
-                  :value="key"
+                  label="员工"
+                  value="employee"
+                ></el-option>
+                <el-option
+                  label="管理员"
+                  value="admin"
                 ></el-option>
               </el-select>
             </el-form-item>
+            </el-col>
+        <el-col :span="12">
+              <el-form-item label="登录密码" :label-width="formLabelWidth" prop="password">
+          <el-input
+            type="password"
+            ref="password"
+            name="password"
+            tabindex="1"
+            v-model="form.password"
+            auto-complete="off"
+          ></el-input>
+        </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="确认密码" :label-width="formLabelWidth" prop="checkPass">
+          <el-input
+            type="password"
+            ref="checkPass"
+            name="checkPass"
+            tabindex="1"
+            v-model="form.checkPass"
+            auto-complete="off"
+          ></el-input>
+        </el-form-item>
+            </el-col>
       </el-form>
       
       <div slot="footer" class="dialog-footer">
@@ -111,14 +135,33 @@ import concans from "@/utils/concans";
 export default {
   name: "Tab",
   data() {
-    //   request({
-    //   url: 'http://127.0.0.1/zenitoo-user/user/test?time=1',
-    //   method: 'get'
-    // }).then((res) => {
-    //   console.log(res)
-    // }).catch((e) => {
-    //   console.log(e)
-    // })
+    var validatePass = (rule, value, callback) => {
+        if (value === '') {
+          if(this.form.row.employee_id){
+            callback();
+          }else{
+            callback(new Error('请输入密码'));
+          }
+        } else {
+          if (this.form.checkPass !== '') {
+            this.$refs.form.validateField('checkPass');
+          }
+          callback();
+        }
+      };
+      var validatePass2 = (rule, value, callback) => {
+        if (value === '') {
+          if(this.form.row.employee_id&&this.form.password === ''){
+            callback();
+          }else{
+            callback(new Error('请再次输入密码'));
+          }
+        } else if (value !== this.form.password) {
+          callback(new Error('两次输入密码不一致!'));
+        } else {
+          callback();
+        }
+      };
     return {
       dialogFormVisible: false,
       dialogVisible: false,
@@ -129,16 +172,22 @@ export default {
       searchStatus: "",
       hasCharges: { "1": "支持", "2": "不支持" },
       form: {
-        car_type_name: "",
-        has_charge: '',
+        password:'',
+        checkPass:'',
         row: {},
       },
       cellRules: {
-        car_type_name: [
-          { required: true, trigger: "blur", message: "请输入名称" },
+        password: [
+          { validator: validatePass, trigger: "blur" },
         ],
-        has_charge: [
-          { required: true, trigger: "change", message: "请选择是否支持充电" },
+        checkPass: [
+          { validator: validatePass2, trigger: "blur"},
+        ],
+        employee_mobile: [
+          { required: true, trigger: "blur",message:'必填项' },
+        ],
+        user_type: [
+          { required: true, trigger: "blur",message:'必填项' },
         ],
       },
       emptytext: "暂无数据",
@@ -173,15 +222,16 @@ export default {
     handleSubmit() {
       this.$refs.form.validate((valid) => {
         if (valid) {
-          if (this.form.row.car_type_id) {
+          if (this.form.row.employee_id) {
             console.log(this.form)
             request({
-              url: "https://" + concans.host + "/car-port/cartype/update",
+              url: "https://" + concans.host + "/contract/adminEmployee/update",
               method: "post",
               data: {
-                car_type_name: this.form.car_type_name,
-                car_type_id: this.form.row.car_type_id,
-                has_charge: this.form.has_charge,
+                employee_id: this.form.row.employee_id,
+                employee_mobile: this.form.employee_mobile,
+                password: this.form.password,
+                user_type: this.form.user_type,
                 status: this.form.row.status,
               },
             })
@@ -195,11 +245,12 @@ export default {
               });
           } else {
             request({
-              url: "https://" + concans.host + "/car-port/cartype/add",
+              url: "https://" + concans.host + "/contract/adminEmployee/add",
               method: "post",
               data: {
-                car_type_name: this.form.car_type_name,
-                has_charge: this.form.has_charge,
+                employee_mobile: this.form.employee_mobile,
+                password: this.form.password,
+                user_type: this.form.user_type,
                 status: 1,
               },
             })
@@ -251,11 +302,31 @@ export default {
           console.log(e);
         });
     },
+    delEdit(row) {
+      if(!window.confirm('删除后将不能使用，请确认')){
+        return false;
+      }  
+      request({
+              url: "https://" + concans.host + "/contract/adminEmployee/delete",
+              method: "post",
+              data: {
+                employee_id: this.form.row.employee_id
+              },
+            })
+              .then((res) => {
+                console.log(res);
+                this.dialogFormVisible = false;
+                this.getData({});
+              })
+              .catch((e) => {
+                console.log(e);
+              });
+    },
     handleEdit(row) {
       console.log(row);
       this.form.row = row;
-      this.form.car_type_name = row.car_type_name;
-      this.form.has_charge = row.has_charge+'';
+      this.form.employee_mobile = row.employee_mobile;
+      this.form.user_type = row.user_type;
       this.dialogFormVisible = true;
     },
     showCreatedTimes() {
@@ -277,11 +348,10 @@ export default {
     getData(data) {
       data.pageSize = this.pageInfo.pageSize;
       data.pageNo = this.pageInfo.current_page;
-      data.car_type_name = this.searchName;
-      data.status = this.searchStatus;
+      data.employee_mobile = this.searchName;
       console.log(data);
       request({
-        url: concans.schema+"://" + concans.host + "/car-port/cartype/getList",
+        url: concans.schema+"://" + concans.host + "/contract/adminEmployee/getList",
         method: "get",
         params: data,
       })

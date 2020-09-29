@@ -26,8 +26,8 @@
           <svg-icon icon-class="user" />
         </span>
         <el-input
-          ref="username"
-          v-model="loginForm.tel"
+          ref="loginForm.username"
+          v-model="loginForm.username"
           placeholder="手机号"
           name="username"
           type="text"

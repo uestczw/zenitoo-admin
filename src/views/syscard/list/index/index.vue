@@ -6,17 +6,17 @@
       <div style="padding-bottom:10px;padding-top:10px;float:left;width:100%;">
         <el-row>
           <el-col :span="3">
-            <div style="margin-top:3px;margin-left:0;font-size:18px;text-align:center;">车辆类型管理</div>
+            <div style="margin-top:3px;margin-left:0;font-size:18px;text-align:center;">系统卡片管理</div>
           </el-col>
           <el-col :span="3" align="center">
             <el-select v-model="searchStatus" placeholder="状态" style="width:120px;">
               <el-option label="全部状态" value></el-option>
-              <el-option label="启用" value="1"></el-option>
-              <el-option label="停用" value="2"></el-option>
+              <el-option label="未绑定" value="1"></el-option>
+              <el-option label="已绑定" value="2"></el-option>
             </el-select>
           </el-col>
           <el-col :span="4">
-            <el-input placeholder="类型名称" v-model="searchName" class="input-with-select">
+            <el-input placeholder="卡片编号" v-model="searchCardSn" class="input-with-select">
               <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
             </el-input>
           </el-col>
@@ -39,16 +39,11 @@
         :cell-style="{padding:0+'px'}"
         style="width: 94%;margin-left:3%;border:1px solid #eeeeee;min-height:40px;"
       >
-        <el-table-column prop="car_type_id" label="类型id" width="180"></el-table-column>
-        <el-table-column prop="car_type_name" label="类型名称" width="180"></el-table-column>
-        <el-table-column prop="has_charge" label="是否支持充电">
-          <template slot-scope="scope">{{hasCharges[scope.row.has_charge]}}</template>
-        </el-table-column>
-        <el-table-column label="操作" min-width="110">
+        <el-table-column prop="card_sn" label="卡片编号" width="180"></el-table-column>
+        <el-table-column prop="is_bind" label="是否绑定用户" width="180">
           <template slot-scope="scope">
-            <el-button type="text" @click="handleEdit(scope.row)">编辑</el-button>
-            <el-button v-if="scope.row.status == 1" type="text" @click="changeStatus(scope.row)">禁用</el-button>
-            <el-button v-if="scope.row.status == 2" type="text" @click="changeStatus(scope.row)">启用</el-button>
+            <span v-if="scope.row.is_bind == 1" type="text">未绑定</span>
+            <span v-if="scope.row.is_bind == 2" type="text">已绑定</span>
           </template>
         </el-table-column>
       </el-table>
@@ -65,42 +60,63 @@
       </div>
     </div>
 
-    <el-dialog title="添加类型" :visible.sync="dialogFormVisible">
+    <el-dialog title="卡片详情" :visible.sync="dialogFormVisible">
       <el-form :model="form" ref="form" :rules="cellRules">
-        <el-form-item label="名称" :label-width="formLabelWidth" prop="car_type_name">
-          <el-input
-            ref="car_type_name"
-            name="car_type_name"
-            tabindex="1"
-            v-model="form.car_type_name"
-            auto-complete="off"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="是否支持充电" :label-width="formLabelWidth" prop="has_charge">
-              <el-select v-model="form.has_charge" filterable placeholder="请选择">
+        <el-row>
+          <el-col v-if="form.row.sys_card_id" :span="24">
+            <el-form-item label="绑定用户" :label-width="formLabelWidth" prop="user_id">
+              <el-select
+                ref="form.user_id"
+                v-model="form.user_id"
+                filterable
+                remote
+                label-in-value
+                placeholder="请输入手机号"
+                :remote-method="loadUser"
+                :loading="loading"
+                :label="form.user_id"
+              >
                 <el-option
-                  v-for="(value, key) in hasCharges"
-                  ref="form.has_charge"
-                  :label="value"
-                  :value="key"
+                  v-for="user in users"
+                  :key="user.id"
+                  :label="user.name+'('+user.tel+')'"
+                  :value="user.id"
                 ></el-option>
               </el-select>
             </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="卡片编号" :label-width="formLabelWidth" prop="post_sn">
+          <el-input
+            ref="card_sn"
+            name="card_sn"
+            tabindex="1"
+            v-model="form.card_sn"
+            auto-complete="off"
+          ></el-input>
+        </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
-      
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="handleSubmit">确 定</el-button>
       </div>
     </el-dialog>
 
-    <el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
-      <span v-if="statusText == 1">确认是否禁用!</span>
-      <span v-if="statusText == 2">确认是否启用!</span>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="statusSubmit">确 定</el-button>
-      </span>
+    <el-dialog title="批量添加卡片" :visible.sync="dialogPlVisible">
+      <label>新增数量</label>
+      <el-input
+                ref="addnumbers"
+                name="addnumbers"
+                tabindex="7"
+                v-model="addnumbers"
+                auto-complete="off"
+              ></el-input>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogPlVisible = false">取 消</el-button>
+        <el-button type="primary" @click="addAll">确 定</el-button>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -120,6 +136,17 @@ export default {
     //   console.log(e)
     // })
     return {
+      users:[],
+      searchCardSn:'',
+      dialogPlVisible: false,
+      addnumbers: 10,
+      loading: false,
+      cellEditStatus: false,
+      carports: [],
+      timeout: null,
+      searchPortSn: '',
+      searchAreaParams: { type: 2 },
+      searchAreaRet: {},
       dialogFormVisible: false,
       dialogVisible: false,
       statusRow: {},
@@ -127,19 +154,17 @@ export default {
       formLabelWidth: "120px",
       searchName: "",
       searchStatus: "",
-      hasCharges: { "1": "支持", "2": "不支持" },
+      chargeModes:{},
+      factorys:{},
       form: {
-        car_type_name: "",
-        has_charge: '',
+        user_id: "",
+        card_sn: '',
         row: {},
       },
       cellRules: {
-        car_type_name: [
-          { required: true, trigger: "blur", message: "请输入名称" },
-        ],
-        has_charge: [
-          { required: true, trigger: "change", message: "请选择是否支持充电" },
-        ],
+        card_sn: [
+          { required: true, trigger: "blur", message: "请输入卡片编号" },
+        ]
       },
       emptytext: "暂无数据",
       pageInfo: {
@@ -165,24 +190,40 @@ export default {
   },
   methods: {
     addcell(type) {
-      console.log(type);
-      this.form.row = {};
-      this.form.car_type_name = "";
-      this.dialogFormVisible = true;
+      this.form.card_sn = '';
+      this.form.user_id = '';
+      this.dialogFormVisible = true
+    },
+    addAll() {
+      request({
+              url: concans.schema+"://" + concans.host + "/car-port/user/buildCardSN",
+              method: "post",
+              data: {
+                numbers: this.addnumbers
+              },
+            })
+              .then((res) => {
+                console.log(res);
+                this.dialogPlVisible = false;
+                this.getData({});
+              })
+              .catch((e) => {
+                console.log(e);
+              });
     },
     handleSubmit() {
       this.$refs.form.validate((valid) => {
         if (valid) {
-          if (this.form.row.car_type_id) {
+          if (this.form.row.sys_card_id) {
             console.log(this.form)
             request({
-              url: "https://" + concans.host + "/car-port/cartype/update",
+              url: concans.schema+"://" + concans.host + "/car-port/adminuser/updateCard",
               method: "post",
               data: {
-                car_type_name: this.form.car_type_name,
-                car_type_id: this.form.row.car_type_id,
-                has_charge: this.form.has_charge,
-                status: this.form.row.status,
+                card_sn: this.form.card_sn,
+                query_user_id: this.form.user_id,
+                card_id: this.form.row.sys_card_id,
+                status: 0
               },
             })
               .then((res) => {
@@ -195,12 +236,10 @@ export default {
               });
           } else {
             request({
-              url: "https://" + concans.host + "/car-port/cartype/add",
+              url: concans.schema+"://" + concans.host + "/car-port/user/addSysCard",
               method: "post",
               data: {
-                car_type_name: this.form.car_type_name,
-                has_charge: this.form.has_charge,
-                status: 1,
+                card_sn: this.form.card_sn
               },
             })
               .then((res) => {
@@ -235,10 +274,10 @@ export default {
       this.dialogVisible = false;
       console.log(status);
       request({
-        url: concans.schema+"://" + concans.host + "/car-port/cartype/chargeStatus",
+        url: concans.schema+"://" + concans.host + "/car-port/chargepost/updatePostStatus",
         method: "post",
         data: {
-          car_type_id: row.car_type_id,
+          car_port_id: row.car_port_id,
           status: status
         },
       })
@@ -252,10 +291,10 @@ export default {
         });
     },
     handleEdit(row) {
-      console.log(row);
+      console.log(row);  
       this.form.row = row;
-      this.form.car_type_name = row.car_type_name;
-      this.form.has_charge = row.has_charge+'';
+      this.form.card_sn = row.card_sn;
+      this.form.user_id = row.user_id;
       this.dialogFormVisible = true;
     },
     showCreatedTimes() {
@@ -273,17 +312,31 @@ export default {
     search() {
       this.getData({});
     },
+    loadUser(value) {
+      console.log('loadUser'+value)
+      request({
+        url: concans.schema+"://" + concans.host + "/zenitoo-user/user/queryListByTel",
+        method: "post",
+        data: { pageNo: 1, pageSize: 10, tel: value },
+      })
+        .then((res) => {
+          this.users = res.data;
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    },
     // 获取 表格数据
     getData(data) {
       data.pageSize = this.pageInfo.pageSize;
       data.pageNo = this.pageInfo.current_page;
-      data.car_type_name = this.searchName;
-      data.status = this.searchStatus;
+      data.card_sn = this.searchCardSn;
+      data.is_bind = this.searchStatus;
       console.log(data);
       request({
-        url: concans.schema+"://" + concans.host + "/car-port/cartype/getList",
-        method: "get",
-        params: data,
+        url: concans.schema+"://" + concans.host + "/car-port/user/sysCardList",
+        method: "post",
+        data: data,
       })
         .then((res) => {
           console.log(this.pageInfo.current_page);

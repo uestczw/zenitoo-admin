@@ -16,8 +16,7 @@
             </el-select>
           </el-col>
           <el-col :span="4">
-            <el-input placeholder="充电桩编号" v-model="searchPortSn" class="input-with-select">
-            </el-input>
+            <el-input placeholder="充电桩编号" v-model="searchPortSn" class="input-with-select"></el-input>
           </el-col>
           <el-col :span="4">
             <el-input placeholder="车棚名称" v-model="searchName" class="input-with-select">
@@ -51,16 +50,14 @@
         <el-table-column prop="firmware_version" label="软件版本"></el-table-column>
         <el-table-column prop="heart_time" label="心跳间隔时间"></el-table-column>
         <el-table-column prop="max_charge_power" label="最大充电功率"></el-table-column>
-        <el-table-column prop="factory_name" label="厂家ID">
-        </el-table-column>
+        <el-table-column prop="factory_name" label="厂家ID"></el-table-column>
         <el-table-column prop="charge_mode" label="充电控制模式">
-          <template slot-scope="scope">
-            {{chargeModes[scope.row.charge_mode]}}
-          </template>
+          <template slot-scope="scope">{{chargeModes[scope.row.charge_mode]}}</template>
         </el-table-column>
-        <el-table-column label="操作" min-width="110">
+        <el-table-column label="操作" min-width="200">
           <template slot-scope="scope">
             <el-button type="text" @click="handleEdit(scope.row)">编辑</el-button>
+            <el-button type="text" @click="showewm(scope.row)">二维码</el-button>
             <el-button v-if="scope.row.status == 1" type="text" @click="changeStatus(scope.row)">禁用</el-button>
             <el-button v-if="scope.row.status == 2" type="text" @click="changeStatus(scope.row)">启用</el-button>
           </template>
@@ -85,7 +82,7 @@
           <el-col :span="12">
             <el-form-item label="所属车棚" :label-width="formLabelWidth" prop="car_port_id">
               <el-select
-                :disabled = "cellEditStatus"
+                :disabled="cellEditStatus"
                 ref="form.car_port_id"
                 v-model="form.car_port_id"
                 filterable
@@ -107,59 +104,64 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="充电桩编号" :label-width="formLabelWidth" prop="post_sn">
-          <el-input
-            ref="post_sn"
-            name="post_sn"
-            tabindex="1"
-            v-model="form.post_sn"
-            auto-complete="off"
-          ></el-input>
-        </el-form-item>
+              <el-input
+                ref="post_sn"
+                name="post_sn"
+                tabindex="1"
+                v-model="form.post_sn"
+                auto-complete="off"
+              ></el-input>
+            </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
             <el-form-item label="端口数量" :label-width="formLabelWidth" prop="port_numbers">
-          <el-input
-            ref="port_numbers"
-            name="port_numbers"
-            tabindex="1"
-            v-model="form.port_numbers"
-            auto-complete="off"
-          ></el-input>
-        </el-form-item>
+              <el-input
+                ref="port_numbers"
+                name="port_numbers"
+                tabindex="1"
+                v-model="form.port_numbers"
+                auto-complete="off"
+              ></el-input>
+            </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="最大充电时长" :label-width="formLabelWidth" prop="max_charge_time">
-          <el-input
-            ref="max_charge_time"
-            name="max_charge_time"
-            tabindex="1"
-            v-model="form.max_charge_time"
-            auto-complete="off"
-          ></el-input>
-        </el-form-item>
+              <el-input
+                ref="max_charge_time"
+                name="max_charge_time"
+                tabindex="1"
+                v-model="form.max_charge_time"
+                auto-complete="off"
+              ></el-input>
+            </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
             <el-form-item label="充电控制模式" :label-width="formLabelWidth" prop="charge_mode">
               <el-select v-model="form.charge_mode" filterable placeholder="请选择">
-                <el-option v-for="(value, key) in chargeModes" ref="form.charge_mode" :label="value" :value="key"></el-option>
+                <el-option
+                  v-for="(value, key) in chargeModes"
+                  ref="form.charge_mode"
+                  :label="value"
+                  :value="key"
+                ></el-option>
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="硬件版本" :label-width="formLabelWidth" prop="hardware_version">
-          <el-input
-            ref="hardware_version"
-            name="hardware_version"
-            tabindex="1"
-            v-model="form.hardware_version"
-            auto-complete="off"
-            value="v1.0"
-          ></el-input>
-        </el-form-item>
+              <el-input
+                ref="hardware_version"
+                name="hardware_version"
+                tabindex="1"
+                v-model="form.hardware_version"
+                auto-complete="off"
+                value="v1.0"
+              ></el-input>
+            </el-form-item>
           </el-col>
         </el-row>
         <el-row>
@@ -190,23 +192,28 @@
           <el-col :span="12">
             <el-form-item label="厂家" :label-width="formLabelWidth" prop="factory_id">
               <el-select v-model="form.factory_id" filterable placeholder="请选择">
-                <el-option v-for="item in factorys" ref="form.factory_id" :label="item.factory_name" :value="item.factory_id+''"></el-option>
+                <el-option
+                  v-for="item in factorys"
+                  ref="form.factory_id"
+                  :label="item.factory_name"
+                  :value="item.factory_id+''"
+                ></el-option>
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="最大充电功率" :label-width="formLabelWidth" prop="max_charge_power">
-          <el-input
-            ref="max_charge_power"
-            name="max_charge_power"
-            tabindex="1"
-            v-model="form.max_charge_power"
-            auto-complete="off"
-            value="v1.0"
-          ></el-input>
-        </el-form-item>
+              <el-input
+                ref="max_charge_power"
+                name="max_charge_power"
+                tabindex="1"
+                v-model="form.max_charge_power"
+                auto-complete="off"
+                value="v1.0"
+              ></el-input>
+            </el-form-item>
           </el-col>
-          </el-row>
+        </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
@@ -226,16 +233,24 @@
     <el-dialog title="批量添加充电桩" :visible.sync="dialogPlVisible">
       <label>新增数量</label>
       <el-input
-                ref="addnumbers"
-                name="addnumbers"
-                tabindex="7"
-                v-model="addnumbers"
-                auto-complete="off"
-              ></el-input>
+        ref="addnumbers"
+        name="addnumbers"
+        tabindex="7"
+        v-model="addnumbers"
+        auto-complete="off"
+      ></el-input>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogPlVisible = false">取 消</el-button>
         <el-button type="primary" @click="addAll">确 定</el-button>
       </div>
+    </el-dialog>
+
+    <el-dialog title="二维码" :visible.sync="dialogEwm" width="340px">
+      <img :src="ewmurl" width="300px" height="300px" />
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogEwm = false">取 消</el-button>
+        <el-button type="primary" @click="loadewm">下载二维码</el-button>
+      </span>
     </el-dialog>
   </div>
 </template>
@@ -256,12 +271,14 @@ export default {
     // })
     return {
       dialogPlVisible: false,
+      dialogEwm: false,
+      ewmurl: "",
       addnumbers: 10,
       loading: false,
       cellEditStatus: false,
       carports: [],
       timeout: null,
-      searchPortSn: '',
+      searchPortSn: "",
       searchAreaParams: { type: 2 },
       searchAreaRet: {},
       dialogFormVisible: false,
@@ -271,21 +288,21 @@ export default {
       formLabelWidth: "120px",
       searchName: "",
       searchStatus: "",
-      chargeModes:{},
-      factorys:{},
+      chargeModes: {},
+      factorys: {},
       form: {
         car_port_id: "",
-        car_port_name: '',
+        car_port_name: "",
         post_sn: "",
         port_numbers: "2",
         charge_mode: "",
         status: "",
-        max_charge_time: '10',
-        hardware_version: 'v1.0',
-        firmware_version: 'v1.0',
-        heart_time: '10',
-        factory_id: '',
-        max_charge_power: '5000',
+        max_charge_time: "10",
+        hardware_version: "v1.0",
+        firmware_version: "v1.0",
+        heart_time: "10",
+        factory_id: "",
+        max_charge_power: "5000",
         row: {},
       },
       cellRules: {
@@ -304,10 +321,18 @@ export default {
         hardware_version: [
           { required: true, trigger: "blur", message: "请输入固件版本号" },
         ],
-        car_port_id: [{ required: true, trigger: "change", message: "请选择车棚" }],
-        firmware_version: [{ required: true, trigger: "blur", message: "请输入软件版本号" }],
-        factory_id: [{ required: true, trigger: "change", message: "请选择厂家" }],
-        max_charge_power: [{ required: true, trigger: "blur", message: "请输入最大充电功率" }],
+        car_port_id: [
+          { required: true, trigger: "change", message: "请选择车棚" },
+        ],
+        firmware_version: [
+          { required: true, trigger: "blur", message: "请输入软件版本号" },
+        ],
+        factory_id: [
+          { required: true, trigger: "change", message: "请选择厂家" },
+        ],
+        max_charge_power: [
+          { required: true, trigger: "blur", message: "请输入最大充电功率" },
+        ],
       },
       emptytext: "暂无数据",
       pageInfo: {
@@ -348,9 +373,23 @@ export default {
     this.loadFactory();
   },
   methods: {
+    showewm(row) {
+      var url =
+        concans.schema +
+        "://" +
+        concans.host +
+        "/zenitoo-user/qrcode/load?code_sn=" +
+        row.post_sn;
+      this.dialogEwm = true;
+      this.ewmurl = url;
+    },
+    loadewm(code_sn) {
+      window.open(this.ewmurl, "target=_blank");
+      this.dialogEwm = false;
+    },
     getSysArea(pid, callback) {
       request({
-        url: "https://" + concans.host + "/car-port/sys/areaCode",
+        url: concans.schema + "://" + concans.host + "/car-port/sys/areaCode",
         timeout: 5000,
         method: "post",
         data: { pid: pid },
@@ -364,63 +403,72 @@ export default {
         });
     },
     loadChargeMode() {
-request({
-        url: "https://" + concans.host + "/car-port/sys/sysConf",
+      request({
+        url: concans.schema + "://" + concans.host + "/car-port/sys/sysConf",
         timeout: 5000,
         method: "post",
-        params: { key_type: 'charge_mode' },
+        params: { key_type: "charge_mode" },
       })
         .then((res) => {
           console.log(res);
-          this.chargeModes = res.data
+          this.chargeModes = res.data;
         })
         .catch((e) => {
           console.log(e);
         });
     },
     loadFactory() {
-request({
-        url: "https://" + concans.host + "/car-port/sys/factoryList",
+      request({
+        url:
+          concans.schema + "://" + concans.host + "/car-port/sys/factoryList",
         timeout: 5000,
         method: "post",
-        params: { factory_type: 'charge_post' },
+        params: { factory_type: "charge_post" },
       })
         .then((res) => {
           console.log(res);
-          this.factorys = res.data
-          this.form.factory_id = '1'
+          this.factorys = res.data;
+          this.form.factory_id = "1";
         })
         .catch((e) => {
           console.log(e);
         });
     },
     addcell(type) {
-      this.dialogPlVisible = true
+      this.dialogPlVisible = true;
     },
     addAll() {
       request({
-              url: "https://" + concans.host + "/car-port/chargepost/buildSN",
-              method: "get",
-              params: {
-                numbers: this.addnumbers
-              },
-            })
-              .then((res) => {
-                console.log(res);
-                this.dialogPlVisible = false;
-                this.getData({});
-              })
-              .catch((e) => {
-                console.log(e);
-              });
+        url:
+          concans.schema +
+          "://" +
+          concans.host +
+          "/car-port/chargepost/buildSN",
+        method: "get",
+        params: {
+          numbers: this.addnumbers,
+        },
+      })
+        .then((res) => {
+          console.log(res);
+          this.dialogPlVisible = false;
+          this.getData({});
+        })
+        .catch((e) => {
+          console.log(e);
+        });
     },
     handleSubmit() {
       this.$refs.form.validate((valid) => {
         if (valid) {
           if (this.form.row.charge_post_id) {
-            console.log(this.form)
+            console.log(this.form);
             request({
-              url: "https://" + concans.host + "/car-port/chargepost/update",
+              url:
+                concans.schema +
+                "://" +
+                concans.host +
+                "/car-port/chargepost/update",
               method: "post",
               data: {
                 car_port_id: this.form.car_port_id,
@@ -435,7 +483,7 @@ request({
                 factory_id: this.form.factory_id,
                 max_charge_power: this.form.max_charge_power,
                 charge_post_id: this.form.row.charge_post_id,
-                port_numbers_array: ''
+                port_numbers_array: "",
               },
             })
               .then((res) => {
@@ -448,7 +496,11 @@ request({
               });
           } else {
             request({
-              url: "https://" + concans.host + "/car-port/chargepost/add",
+              url:
+                concans.schema +
+                "://" +
+                concans.host +
+                "/car-port/chargepost/add",
               method: "post",
               data: {
                 interval_rate: this.form.interval_rate,
@@ -492,11 +544,15 @@ request({
       this.dialogVisible = false;
       console.log(status);
       request({
-        url: "https://" + concans.host + "/car-port/chargepost/updatePostStatus",
+        url:
+          concans.schema +
+          "://" +
+          concans.host +
+          "/car-port/chargepost/updatePostStatus",
         method: "post",
         data: {
           car_port_id: row.car_port_id,
-          status: status
+          status: status,
         },
       })
         .then((res) => {
@@ -510,72 +566,71 @@ request({
     },
     handleEdit(row) {
       console.log(row);
-      if(row.car_port_id&&row.car_port_id !==0){
+      if (row.car_port_id && row.car_port_id !== 0) {
         this.cellEditStatus = true;
-      }else{
+      } else {
         this.cellEditStatus = false;
       }
-      
       this.form.row = row;
-      if(row.car_port_id && row.car_port_id!==0){
+      if (row.car_port_id && row.car_port_id !== 0) {
         this.carports = [row];
-this.form.car_port_id = row.car_port_id;
-      this.form.car_port_name = row.car_port_name;
-      }else{
-        this.form.car_port_id = '';
-      this.form.car_port_name = '';
+        this.form.car_port_id = row.car_port_id;
+        this.form.car_port_name = row.car_port_name;
+      } else {
+        this.form.car_port_id = "";
+        this.form.car_port_name = "";
       }
-      
+
       this.form.post_sn = row.post_sn;
-      if(row.port_numbers && row.port_numbers!==0){
+      if (row.port_numbers && row.port_numbers !== 0) {
         this.form.port_numbers = row.port_numbers;
-      }else{
+      } else {
         this.form.port_numbers = 2;
       }
 
-      if(row.max_charge_time && row.max_charge_time!==0){
+      if (row.max_charge_time && row.max_charge_time !== 0) {
         this.form.max_charge_time = row.max_charge_time;
-      }else{
+      } else {
         this.form.max_charge_time = 10;
       }
 
-      if(row.hardware_version && row.hardware_version!==''){
+      if (row.hardware_version && row.hardware_version !== "") {
         this.form.hardware_version = row.hardware_version;
-      }else{
-        this.form.hardware_version = 'v1.0';
+      } else {
+        this.form.hardware_version = "v1.0";
       }
 
-      if(row.firmware_version && row.firmware_version!==''){
+      if (row.firmware_version && row.firmware_version !== "") {
         this.form.firmware_version = row.firmware_version;
-      }else{
-        this.form.firmware_version = 'v1.0';
+      } else {
+        this.form.firmware_version = "v1.0";
       }
 
-      if(row.heart_time && row.heart_time!==0){
+      if (row.heart_time && row.heart_time !== 0) {
         this.form.heart_time = row.heart_time;
-      }else{
+      } else {
         this.form.heart_time = 10;
       }
 
-      if(row.max_charge_power && row.max_charge_power!==0){
+      if (row.max_charge_power && row.max_charge_power !== 0) {
         this.form.max_charge_power = row.max_charge_power;
-      }else{
+      } else {
         this.form.max_charge_power = 5000;
       }
 
-      if(row.factory_id && row.factory_id!==0){
+      if (row.factory_id && row.factory_id !== 0) {
         this.form.factory_id = row.factory_id;
-      }else{
-        this.form.factory_id = '1';
+      } else {
+        this.form.factory_id = "1";
       }
 
-      if(row.charge_mode && row.charge_mode!==0){
+      if (row.charge_mode && row.charge_mode !== 0) {
         this.form.charge_mode = row.charge_mode;
-      }else{
-        this.form.charge_mode = 'owner';
+      } else {
+        this.form.charge_mode = "owner";
       }
-      
-      this.form.status = row.status+'';
+
+      this.form.status = row.status + "";
       this.dialogFormVisible = true;
     },
     showCreatedTimes() {
@@ -594,9 +649,10 @@ this.form.car_port_id = row.car_port_id;
       this.getData({});
     },
     loadCell(value) {
-      console.log('loadCell'+value)
+      console.log("loadCell" + value);
       request({
-        url: "https://" + concans.host + "/car-port/carport/getList",
+        url:
+          concans.schema + "://" + concans.host + "/car-port/carport/getList",
         method: "get",
         params: { pageNo: 1, pageSize: 10, car_port_name: value },
       })
@@ -634,7 +690,11 @@ this.form.car_port_id = row.car_port_id;
       data.district_code = district_code;
       console.log(data);
       request({
-        url: "https://" + concans.host + "/car-port/chargepost/getList",
+        url:
+          concans.schema +
+          "://" +
+          concans.host +
+          "/car-port/chargepost/getList",
         method: "get",
         params: data,
       })
