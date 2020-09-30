@@ -85,23 +85,23 @@
         "
       >
         <el-table-column
-          prop="car_type_id"
+          prop="contract_code"
           label="合同编号"
           width="180"
         ></el-table-column>
         <el-table-column
-          prop="car_type_name"
+          prop="create_time"
           label="创建时间"
           width="180"
         ></el-table-column>
         <el-table-column
-          prop="car_type_name"
-          label="小区"
+          prop="start_time"
+          label="开始时间"
           width="180"
         ></el-table-column>
         <el-table-column
-          prop="car_type_name"
-          label="合作商"
+          prop="end_time"
+          label="结束时间"
           width="180"
         ></el-table-column>
         <el-table-column label="操作" min-width="110">
@@ -167,6 +167,8 @@
             >
               <el-date-picker
                 v-model="form.start_time"
+                value-format="yyyy-MM-dd"
+                format="yyyy-MM-dd"
                 align="right"
                 type="date"
                 placeholder="选择日期"
@@ -182,6 +184,8 @@
             >
               <el-date-picker
                 v-model="form.end_time"
+                value-format="yyyy-MM-dd"
+                format="yyyy-MM-dd"
                 align="right"
                 type="date"
                 placeholder="选择日期"
@@ -217,9 +221,9 @@
             >
               <el-option
                 v-for="cell in serMers"
-                :key="cell.employee_id"
-                :label="cell.employee_mobile"
-                :value="cell.employee_id"
+                :key="cell.alliance_id"
+                :label="cell.alliance_name+'('+cell.alliance_mobile+')'"
+                :value="cell.alliance_id"
               ></el-option> </el-select
           ></el-col>
           <el-col :span="1">
@@ -277,13 +281,13 @@
                 >
                   <template slot-scope="scope">
                     <el-form-item
-                      :prop="'mers.' + scope.$index + '.balance'"
+                      :prop="'mers.' + scope.$index + '.settle_day'"
                       :rules="cellRules.lrfp"
                     >
                       <el-input
                         oninput="value=value.replace(/[^\d.]/g,'')"
                         size="mini"
-                        v-model="scope.row.balance"
+                        v-model="scope.row.settle_day"
                       ></el-input>
                     </el-form-item>
                   </template>
@@ -306,15 +310,15 @@
                     </el-form-item>
                   </template>
                 </el-table-column>
-                <el-table-column prop="remark" label="备注" width="120">
+                <el-table-column prop="mark" label="备注" width="120">
                   <template slot-scope="scope">
                     <el-form-item
-                      :prop="'mers.' + scope.$index + '.remark'"
+                      :prop="'mers.' + scope.$index + '.mark'"
                       :rules="cellRules.lrfp"
                     >
                       <el-input
                         size="mini"
-                        v-model="scope.row.remark"
+                        v-model="scope.row.mark"
                       ></el-input>
                     </el-form-item>
                   </template>
@@ -344,7 +348,7 @@
               >
                 <el-option
                   v-for="item in form.mers"
-                  :label="item.alliance_name"
+                  :label="item.alliance_name+'('+item.alliance_mobile+')'"
                   :value="item.alliance_id"
                 />
               </el-select>
@@ -397,7 +401,7 @@
               >
                 <el-option
                   v-for="item in form.mers"
-                  :label="item.alliance_name"
+                  :label="item.alliance_name+'('+item.alliance_mobile+')'"
                   :value="item.alliance_id"
                 />
               </el-select>
@@ -474,7 +478,7 @@
                 <el-option
                   v-for="sale in contractUsers"
                   :key="sale.employee_id"
-                  :label="sale.employee_mobile"
+                  :label="sale.employee_name+'('+sale.employee_mobile+')'"
                   :value="sale.employee_id"
                 ></el-option>
               </el-select>
@@ -499,7 +503,7 @@
                 <el-option
                   v-for="sale in saleUsers"
                   :key="sale.employee_id"
-                  :label="sale.employee_mobile"
+                  :label="sale.employee_name+'('+sale.employee_mobile+')'"
                   :value="sale.employee_id"
                 ></el-option>
               </el-select>
@@ -524,7 +528,7 @@
                 <el-option
                   v-for="sale in manageUsers"
                   :key="sale.employee_id"
-                  :label="sale.employee_mobile"
+                  :label="sale.employee_name+'('+sale.employee_mobile+')'"
                   :value="sale.employee_id"
                 ></el-option>
               </el-select>
@@ -596,7 +600,7 @@ export default {
       showFileType: "",
       showFileUrl: "",
       headers: {},
-      fileList: [{ name: "food.jpg", url: "https://xxx.cdn.com/xxx.jpg" }],
+      fileList: [],
       dialogFile: false,
       dialogUpload: false,
       formLabelWidth: "80px",
@@ -647,6 +651,12 @@ export default {
     },
   },
   created() {
+    if(this.$route.query.contract_id){
+      this.handleEdit({
+        contract_id:this.$route.query.contract_id
+      });
+      this.dialogUpload = true;
+    }
     this.getData({});
     const hasToken = getToken();
     this.headers = {
@@ -658,11 +668,11 @@ export default {
     serFriChange(value) {
       let obj = {};
       obj = this.serMers.find((item) => {
-        return item.employee_id === value;
+        return item.alliance_id === value;
       });
-      this.serFriName = obj.employee_mobile;
-      this.serFriTel = obj.employee_mobile;
-      this.serFriSn = obj.employee_sn;
+      this.serFriName = obj.alliance_name;
+      this.serFriTel = obj.alliance_mobile;
+      this.serFriSn = obj.alliance_sn;
       //this.serFri = value;
       console.log(this.serFri);
       console.log(this.serFriName);
@@ -701,12 +711,12 @@ export default {
           concans.schema +
           "://" +
           concans.host +
-          "/contract/adminEmployee/getAllianceList",
+          "/contract/adminAlliance/getList",
         method: "get",
         params: { pageNo: 1, pageSize: 10, mobile: value },
       })
         .then((res) => {
-          this.serMers = res.data;
+          this.serMers = res.data.rows;
         })
         .catch((e) => {
           console.log(e);
@@ -725,7 +735,7 @@ export default {
         profit_percent: "",
         settle_day: "",
         safe_day: "",
-        remark: "",
+        mark: "",
       });
       this.merSeq++;
       this.serFri = "";
@@ -818,7 +828,7 @@ export default {
             })
               .then((res) => {
                 console.log(res);
-                this.dialogFormVisible = false;
+                this.dialogUpload = false;
                 this.getData({});
               })
               .catch((e) => {
@@ -849,7 +859,7 @@ export default {
             })
               .then((res) => {
                 console.log(res);
-                this.dialogFormVisible = false;
+                this.dialogUpload = false;
                 this.getData({});
               })
               .catch((e) => {
@@ -906,15 +916,16 @@ export default {
           concans.schema +
           "://" +
           concans.host +
-          "/contract/adminAlliance/getOne",
+          "/contract/adminContract/getOne",
         method: "post",
         data: {
-          alliance_sn: row.alliance_sn,
+          contract_id: row.contract_id,
         },
       })
         .then((res) => {
           console.log(res);
           res = res.data;
+          this.form.row = row;
           this.form.contract_code = res.contract_code;
           this.form.start_time = res.start_time;
           this.form.end_time = res.end_time;
@@ -928,6 +939,24 @@ export default {
           this.form.ground_alliance_id = res.ground_alliance_id;
           this.form.settle_month = res.settle_month;
           this.form.service_user_id = res.service_user_id;
+          this.saleUsers = [];
+          this.saleUsers.push({
+            employee_id: res.ground_alliance_id,
+            employee_name: res.ground_alliance_name,
+            employee_mobile: res.ground_alliance_mobile,
+          });
+          this.contractUsers = [];
+          this.contractUsers.push({
+            employee_id: res.sign_user_id,
+            employee_name: res.sign_user_name,
+            employee_mobile: res.sign_user_mobile,
+          });
+          this.manageUsers = [];
+          this.manageUsers.push({
+            employee_id: res.service_user_id,
+            employee_name: res.service_user_name,
+            employee_mobile: res.service_user_mobile,
+          });
           if (res.images) {
             var fileList = [];
             res.images.forEach((item) => {
@@ -944,8 +973,9 @@ export default {
             });
             //console.log(fileList);
             this.fileList = fileList;
+            this.form.mers = res.alliances;
           }
-          this.dialogFormVisible = true;
+          this.dialogUpload = true;
         })
         .catch((e) => {
           console.log(e);

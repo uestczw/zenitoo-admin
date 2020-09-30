@@ -32,6 +32,7 @@
         :cell-style="{padding:0+'px'}"
         style="width: 94%;margin-left:3%;border:1px solid #eeeeee;min-height:40px;"
       >
+        <el-table-column prop="employee_name" label="名称" width="200"></el-table-column>
         <el-table-column prop="employee_mobile" label="手机号" width="200"></el-table-column>
         <el-table-column prop="user_type" label="账户类型" width="200">
           <template slot-scope="scope">
@@ -59,22 +60,31 @@
       </div>
     </div>
 
-    <el-dialog title="账户详情" :visible.sync="dialogFormVisible">
+    <el-dialog title="账户详情" :visible.sync="dialogFormVisible" width="60%">
       <el-form :model="form" ref="form" :rules="cellRules">
-        <el-col :span="12">
+        <el-col :span="8">
+              <el-form-item label="姓名" :label-width="formLabelWidth" prop="employee_name">
+          <el-input
+            ref="employee_name"
+            name="employee_name"
+            v-model="form.employee_name"
+            auto-complete="off"
+          ></el-input>
+        </el-form-item>
+            </el-col>
+        <el-col :span="8">
               <el-form-item label="手机号" :label-width="formLabelWidth" prop="employee_mobile">
           <el-input
             ref="employee_mobile"
             name="employee_mobile"
-            tabindex="1"
             v-model="form.employee_mobile"
             auto-complete="off"
           ></el-input>
         </el-form-item>
             </el-col>
-            <el-col :span="12">
+            <el-col :span="8">
               <el-form-item label="账户类型" :label-width="formLabelWidth" prop="user_type">
-              <el-select v-model="form.user_type" filterable placeholder="请选择">
+              <el-select v-model="form.user_type" filterable placeholder="请选择" auto-complete="off">
                 <el-option
                   label="员工"
                   value="employee"
@@ -89,24 +99,22 @@
         <el-col :span="12">
               <el-form-item label="登录密码" :label-width="formLabelWidth" prop="password">
           <el-input
-            type="password"
             ref="password"
             name="password"
-            tabindex="1"
             v-model="form.password"
             auto-complete="off"
+            style="-webkit-text-security:disc;"
           ></el-input>
         </el-form-item>
             </el-col>
             <el-col :span="12">
               <el-form-item label="确认密码" :label-width="formLabelWidth" prop="checkPass">
           <el-input
-            type="password"
             ref="checkPass"
             name="checkPass"
-            tabindex="1"
             v-model="form.checkPass"
             auto-complete="off"
+            style="-webkit-text-security:disc;"
           ></el-input>
         </el-form-item>
             </el-col>
@@ -172,6 +180,8 @@ export default {
       searchStatus: "",
       hasCharges: { "1": "支持", "2": "不支持" },
       form: {
+        employee_name:'',
+        employee_mobile:'',
         password:'',
         checkPass:'',
         row: {},
@@ -184,6 +194,9 @@ export default {
           { validator: validatePass2, trigger: "blur"},
         ],
         employee_mobile: [
+          { required: true, trigger: "blur",message:'必填项' },
+        ],
+        employee_name: [
           { required: true, trigger: "blur",message:'必填项' },
         ],
         user_type: [
@@ -230,6 +243,7 @@ export default {
               data: {
                 employee_id: this.form.row.employee_id,
                 employee_mobile: this.form.employee_mobile,
+                employee_name: this.form.employee_name,
                 password: this.form.password,
                 user_type: this.form.user_type,
                 status: this.form.row.status,
@@ -249,6 +263,7 @@ export default {
               method: "post",
               data: {
                 employee_mobile: this.form.employee_mobile,
+                employee_name: this.form.employee_name,
                 password: this.form.password,
                 user_type: this.form.user_type,
                 status: 1,
@@ -310,7 +325,7 @@ export default {
               url: "https://" + concans.host + "/contract/adminEmployee/delete",
               method: "post",
               data: {
-                employee_id: this.form.row.employee_id
+                employee_id: row.employee_id
               },
             })
               .then((res) => {
@@ -326,6 +341,7 @@ export default {
       console.log(row);
       this.form.row = row;
       this.form.employee_mobile = row.employee_mobile;
+      this.form.employee_name = row.employee_name;
       this.form.user_type = row.user_type;
       this.dialogFormVisible = true;
     },

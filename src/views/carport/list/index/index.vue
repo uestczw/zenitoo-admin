@@ -78,6 +78,28 @@
       <el-form :model="form" ref="form" :rules="cellRules">
         <el-row>
           <el-col :span="8">
+            <el-form-item label="关联合同" :label-width="formLabelWidth" prop="contract_id">
+              <el-select
+                ref="form.contract_id"
+                v-model="form.contract_id"
+                filterable
+                remote
+                label-in-value
+                placeholder="请输入关键词"
+                :remote-method="loadContract"
+                style="float:left;width:70%;"
+              >
+                <el-option
+                  v-for="cell in contracts"
+                  :key="cell.contract_id"
+                  :label="cell.contract_code"
+                  :value="cell.contract_id"
+                ></el-option>
+              </el-select>
+              <el-button style="float:left;" @click="showContract">查看</el-button>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
             <el-form-item label="所属小区" :label-width="formLabelWidth" prop="cell_id">
               <el-select
                 :disabled="cellEditStatus"
@@ -101,7 +123,20 @@
               </el-select>
             </el-form-item>
           </el-col>
+        </el-row>
+<el-row>
           <el-col :span="8">
+        <el-form-item label="车棚名称" :label-width="formLabelWidth" prop="car_port_name">
+          <el-input
+            ref="car_port_name"
+            name="car_port_name"
+            tabindex="1"
+            v-model="form.car_port_name"
+            auto-complete="off"
+          ></el-input>
+        </el-form-item>
+ </el-col>
+ <el-col :span="8">
             <el-form-item label="充电控制模式" :label-width="formLabelWidth" prop="charge_mode">
               <el-select v-model="form.charge_mode" filterable placeholder="请选择">
                 <el-option
@@ -126,17 +161,6 @@
             </el-form-item>
           </el-col>
         </el-row>
-
-        <el-form-item label="车棚名称" :label-width="formLabelWidth" prop="car_port_name">
-          <el-input
-            ref="car_port_name"
-            name="car_port_name"
-            tabindex="1"
-            v-model="form.car_port_name"
-            auto-complete="off"
-          ></el-input>
-        </el-form-item>
-
         <el-row>
           <el-col :span="12">
             <el-form-item label="押金(元)" :label-width="formLabelWidth" prop="deposit_money">
@@ -483,6 +507,7 @@ export default {
       loading: false,
       cellEditStatus: false,
       cells: [],
+      contracts:[],
       timeout: null,
       searchAreaParams: { type: 2 },
       searchAreaRet: {},
@@ -550,6 +575,7 @@ export default {
         ],
         cell_id: [{ required: true, trigger: "change", message: "请选择小区" }],
         mustinput: [{ required: true, trigger: "blur", message: "必填" }],
+        contract_id: [{ required: true, trigger: "change", message: "请选择合同" }],
       },
       emptytext: "暂无数据",
       pageInfo: {
@@ -590,6 +616,16 @@ export default {
     this.loadCartypes();
   },
   methods: {
+    showContract() {
+      var href = this.$router.resolve({
+        path: '/sysdata/contract',
+        query:{
+          contract_id : this.form.contract_id
+        }
+      })
+      window.open(href.href, '_blank');
+      console.log(href);
+    },
     getSysArea(pid, callback) {
       request({
         url: concans.schema+"://" + concans.host + "/car-port/sys/areaCode",
@@ -744,6 +780,7 @@ export default {
               url: concans.schema+"://" + concans.host + "/car-port/carport/update",
               method: "post",
               data: {
+                contract_id: this.form.interval_rate,
                 interval_rate: this.form.interval_rate,
                 deposit_money: this.form.deposit_money,
                 car_port_name: this.form.car_port_name,
@@ -770,6 +807,7 @@ export default {
               url: concans.schema+"://" + concans.host + "/car-port/carport/add",
               method: "post",
               data: {
+                contract_id: this.form.interval_rate,
                 interval_rate: this.form.interval_rate,
                 deposit_money: this.form.deposit_money,
                 car_port_name: this.form.car_port_name,
@@ -831,10 +869,33 @@ export default {
           console.log(e);
         });
     },
+    initContract(contract_id){
+      this.contracts = [];
+      request({
+        url:
+          concans.schema +
+          "://" +
+          concans.host +
+          "/contract/adminContract/getOne",
+        method: "post",
+        data: {
+          contract_id: contract_id,
+        },
+      })
+        .then((res) => {
+          res = res.data;
+          this.contracts.push(res);
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    },
     handleEdit(row) {
       console.log(row);
       this.cellEditStatus = true;
       this.form.row = row;
+      this.form.contract_id = row.contract_id;
+      this.initContract(row.contract_id);
       this.form.interval_rate = row.interval_rate;
       this.form.deposit_money = row.deposit_money;
       this.form.car_port_name = row.car_port_name;
@@ -942,6 +1003,20 @@ export default {
       })
         .then((res) => {
           this.cells = res.data.rows;
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    },
+    loadContract(value) {
+      console.log("loadCell" + value);
+      request({
+        url: concans.schema+"://" + concans.host + "/contract/adminContract/getList",
+        method: "get",
+        params: { pageNo: 1, pageSize: 100, cell_name: value },
+      })
+        .then((res) => {
+          this.contracts = res.data.rows;
         })
         .catch((e) => {
           console.log(e);

@@ -240,9 +240,9 @@
               >
                 <el-option
                   v-for="bank in banks"
-                  :key="bank.cell_id"
-                  :label="bank.cell_name"
-                  :value="bank.cell_id"
+                  :key="bank.bank_code"
+                  :label="bank.bank_name"
+                  :value="bank.bank_code"
                 ></el-option>
               </el-select>
         </el-form-item>
@@ -403,9 +403,9 @@ export default {
     loadBanks(value) {
       console.log("loadCell" + value);
       request({
-        url: concans.schema+"://" + concans.host + "/contract/banck/getList",
+        url: concans.schema+"://" + concans.host + "/contract/bank/getList",
         method: "get",
-        params: { pageNo: 1, pageSize: 10, bank_name: value },
+        params: { pageNo: 1, pageSize: 100, bank_name: value },
       })
         .then((res) => {
           this.banks = res.data.rows;
