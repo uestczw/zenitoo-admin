@@ -363,7 +363,7 @@ export default {
         if (valid) {
           if (this.form.row.cell_id) {
             request({
-              url: concans.schema+"://" + concans.host + "/car-port/cell/update",
+              url: concans.schema+"://" + concans.host + "/car-port/admin/cell/update",
               method: "post",
               data: {
                 cell_name: this.form.cell_name,
@@ -385,7 +385,7 @@ export default {
               });
           } else {
             request({
-              url: concans.schema+"://" + concans.host + "/car-port/cell/add",
+              url: concans.schema+"://" + concans.host + "/car-port/admin/cell/add",
               method: "post",
               data: {
                 cell_name: this.form.cell_name,
@@ -428,7 +428,7 @@ export default {
       this.dialogVisible = false;
       console.log(status);
       request({
-        url: concans.schema+"://" + concans.host + "/car-port/cell/update",
+        url: concans.schema+"://" + concans.host + "/car-port/admin/cell/update",
         method: "post",
         data: {
           cell_name: row.cell_name,
@@ -497,7 +497,7 @@ export default {
       data.district_code = district_code;
       console.log(data);
       request({
-        url: concans.schema+"://" + concans.host + "/car-port/cell/getList",
+        url: concans.schema+"://" + concans.host + "/car-port/admin/cell/getList",
         method: "get",
         params: data,
       })

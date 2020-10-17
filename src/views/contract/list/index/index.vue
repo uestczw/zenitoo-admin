@@ -222,7 +222,7 @@
               <el-option
                 v-for="cell in serMers"
                 :key="cell.alliance_id"
-                :label="cell.alliance_name+'('+cell.alliance_mobile+')'"
+                :label="cell.alliance_name + '(' + cell.alliance_mobile + ')'"
                 :value="cell.alliance_id"
               ></el-option> </el-select
           ></el-col>
@@ -264,7 +264,7 @@
                   <template slot-scope="scope">
                     <el-form-item
                       :prop="'mers.' + scope.$index + '.profit_percent'"
-                      :rules="cellRules.lrfp"
+                      :rules="cellRules.mustone"
                     >
                       <el-input
                         oninput="value=value.replace(/[^\d.]/g,'')"
@@ -316,10 +316,7 @@
                       :prop="'mers.' + scope.$index + '.mark'"
                       :rules="cellRules.lrfp"
                     >
-                      <el-input
-                        size="mini"
-                        v-model="scope.row.mark"
-                      ></el-input>
+                      <el-input size="mini" v-model="scope.row.mark"></el-input>
                     </el-form-item>
                   </template>
                 </el-table-column>
@@ -348,7 +345,7 @@
               >
                 <el-option
                   v-for="item in form.mers"
-                  :label="item.alliance_name+'('+item.alliance_mobile+')'"
+                  :label="item.alliance_name + '(' + item.alliance_mobile + ')'"
                   :value="item.alliance_id"
                 />
               </el-select>
@@ -401,7 +398,7 @@
               >
                 <el-option
                   v-for="item in form.mers"
-                  :label="item.alliance_name+'('+item.alliance_mobile+')'"
+                  :label="item.alliance_name + '(' + item.alliance_mobile + ')'"
                   :value="item.alliance_id"
                 />
               </el-select>
@@ -478,7 +475,7 @@
                 <el-option
                   v-for="sale in contractUsers"
                   :key="sale.employee_id"
-                  :label="sale.employee_name+'('+sale.employee_mobile+')'"
+                  :label="sale.employee_name + '(' + sale.employee_mobile + ')'"
                   :value="sale.employee_id"
                 ></el-option>
               </el-select>
@@ -503,7 +500,7 @@
                 <el-option
                   v-for="sale in saleUsers"
                   :key="sale.employee_id"
-                  :label="sale.employee_name+'('+sale.employee_mobile+')'"
+                  :label="sale.employee_name + '(' + sale.employee_mobile + ')'"
                   :value="sale.employee_id"
                 ></el-option>
               </el-select>
@@ -528,7 +525,7 @@
                 <el-option
                   v-for="sale in manageUsers"
                   :key="sale.employee_id"
-                  :label="sale.employee_name+'('+sale.employee_mobile+')'"
+                  :label="sale.employee_name + '(' + sale.employee_mobile + ')'"
                   :value="sale.employee_id"
                 ></el-option>
               </el-select>
@@ -577,14 +574,28 @@ export default {
   name: "Tab",
   components: { FileUpload, pdf },
   data() {
-    //   request({
-    //   url: 'http://127.0.0.1/zenitoo-user/user/test?time=1',
-    //   method: 'get'
-    // }).then((res) => {
-    //   console.log(res)
-    // }).catch((e) => {
-    //   console.log(e)
-    // })
+    var valid_mustone = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("必填项"));
+        return false;
+      }
+      var patt = /^0$|^1$|^0\.\d+$/;
+      var f = patt.test(value);
+      if (!f) {
+        callback(new Error("0-1的小数"));
+        return false;
+      }
+      var count = 0;
+
+      this.form.mers.forEach((item) => {
+        count = count + parseFloat(item.profit_percent);
+      });
+      if (count != 1) {
+        callback(new Error("合计为1"));
+        return false;
+      }
+      callback();
+    };
     return {
       serFri: "",
       serSn: "",
@@ -627,6 +638,7 @@ export default {
       },
       cellRules: {
         lrfp: [{ required: true, trigger: "blur", message: "必填项" }],
+        mustone: [{ validator: valid_mustone, trigger: "blur" }],
         has_charge: [
           { required: true, trigger: "change", message: "请选择是否支持充电" },
         ],
@@ -651,9 +663,9 @@ export default {
     },
   },
   created() {
-    if(this.$route.query.contract_id){
+    if (this.$route.query.contract_id) {
       this.handleEdit({
-        contract_id:this.$route.query.contract_id
+        contract_id: this.$route.query.contract_id,
       });
       this.dialogUpload = true;
     }
@@ -758,7 +770,7 @@ export default {
       this.fileList = fileList;
     },
     onPreview(file) {
-      this.showFile(file);
+      //this.showFile(file);
     },
     addcell(type) {
       this.fileList = [];

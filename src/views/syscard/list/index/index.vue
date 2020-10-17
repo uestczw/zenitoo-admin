@@ -217,7 +217,7 @@ export default {
           if (this.form.row.sys_card_id) {
             console.log(this.form)
             request({
-              url: concans.schema+"://" + concans.host + "/car-port/adminuser/updateCard",
+              url: concans.schema+"://" + concans.host + "/car-port/admin/adminuser/updateCard",
               method: "post",
               data: {
                 card_sn: this.form.card_sn,
@@ -236,7 +236,7 @@ export default {
               });
           } else {
             request({
-              url: concans.schema+"://" + concans.host + "/car-port/user/addSysCard",
+              url: concans.schema+"://" + concans.host + "/car-port/admin/user/addSysCard",
               method: "post",
               data: {
                 card_sn: this.form.card_sn
@@ -274,7 +274,7 @@ export default {
       this.dialogVisible = false;
       console.log(status);
       request({
-        url: concans.schema+"://" + concans.host + "/car-port/chargepost/updatePostStatus",
+        url: concans.schema+"://" + concans.host + "/car-port/admin/chargepost/updatePostStatus",
         method: "post",
         data: {
           car_port_id: row.car_port_id,
@@ -334,7 +334,7 @@ export default {
       data.is_bind = this.searchStatus;
       console.log(data);
       request({
-        url: concans.schema+"://" + concans.host + "/car-port/user/sysCardList",
+        url: concans.schema+"://" + concans.host + "/car-port/admin/user/sysCardList",
         method: "post",
         data: data,
       })

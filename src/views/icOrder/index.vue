@@ -6,22 +6,10 @@
       <div style="padding-bottom:10px;padding-top:10px;float:left;width:100%;">
         <el-row>
           <el-col :span="3">
-            <div style="margin-top:3px;margin-left:0;font-size:18px;text-align:center;">用户退款管理</div>
+            <div style="margin-top:3px;margin-left:0;font-size:18px;text-align:center;">ic卡购买订单</div>
           </el-col>
           <el-col :span="4">
-            <el-input placeholder="订单号"" v-model="searchCode" class="input-with-select">
-            </el-input>
-          </el-col>
-          <el-col :span="4">
-            <el-select v-model="searchStatus" placeholder="状态"">
-              <el-option label="全部状态" value></el-option>
-              <el-option label="未审核" value="create"></el-option>
-              <el-option label="已退款" value="refund"></el-option>
-              <el-option label="已审核" value="check_status"></el-option>
-            </el-select>
-          </el-col>
-          <el-col :span="4">
-            <el-input placeholder="用户电话" v-model="searchTel" class="input-with-select">
+            <el-input placeholder="用户手机号" v-model="searchTel" class="input-with-select">
               <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
             </el-input>
           </el-col>
@@ -34,24 +22,12 @@
         :cell-style="{padding:0+'px'}"
         style="width: 94%;margin-left:3%;border:1px solid #eeeeee;min-height:40px;"
       >
-        <el-table-column prop="refund_money" label="退款金额(元)" width="120"></el-table-column>
-        <el-table-column prop="create_time" label="创建时间" width="180"></el-table-column>
-        <el-table-column prop="refund_sn" label="退款单编号" width="160"></el-table-column>
-        <el-table-column prop="order_sn" label="订单编号" width="160"></el-table-column>
-        <el-table-column prop="user_id" label="用户id" width="120"></el-table-column>
-        <el-table-column prop="has_charge" label="审核状态">
-          <template slot-scope="scope">
-              <label v-if="scope.row.status == 'create'">未审核</label>
-              <label v-if="scope.row.status == 'checked'">已审核</label>
-              <label v-if="scope.row.status == 'refund'">已退款</label>
-        </template>
+        <el-table-column prop="order_sn" label="编号" width="180"></el-table-column>
+        <el-table-column prop="user_mobile" label="用户" width="180">
         </el-table-column>
-        <el-table-column label="操作" min-width="200">
-          <template slot-scope="scope">
-            <el-button v-if="scope.row.status == 'create'" type="text" @click="refund(scope.row,'refund')">审核通过</el-button>
-            <el-button v-if="scope.row.status == 'create'" type="text" @click="refund(scope.row,'refused')">审核不通过</el-button>
-          </template>
-        </el-table-column>
+        <el-table-column prop="create_time" label="时间" width="180"></el-table-column>
+        <el-table-column prop="pay_money" label="pay_money" width="180"></el-table-column>
+        <el-table-column prop="status" label="status" width="180"></el-table-column>
       </el-table>
       <div class="pagination" style="width: 94%;margin-left:3%;">
         <el-pagination
@@ -129,29 +105,17 @@ export default {
     this.getData({});
   },
   methods: {
-    refund(row,type){
-      if(type == 'refund'){
-        if(!window.confirm('审核通过将直接企业付款到零钱，请确认!')){
-          return false;
-        }
-      }else{
-        // this.$message({
-        //   message: '暂不支持审核不通过',
-        //   type: 'error'
-        // });
-        // return false;
-      }
+    retryBack(row){
       request({
-        url: concans.schema+"://" + concans.host + "/contract/adminRefund/checkOrder",
+        url: concans.schema+"://" + concans.host + "/zenitoo-trans/payOrder/retryBack",
         method: "post",
         data: {
-          refund_sn: row.refund_sn,
-          check_status:type
+          id: row.id,
         },
       })
         .then((res) => {
           console.log(res);
-          alert('审核完成');
+          alert('补单完成');
         })
         .catch((e) => {
           console.log(e);
@@ -174,10 +138,9 @@ export default {
       data.pageSize = this.pageInfo.pageSize;
       data.pageNo = this.pageInfo.current_page;
       data.tel = this.searchTel;
-      data.busOrderId = this.searchCode;
       console.log(data);
       request({
-        url: concans.schema+"://" + concans.host + "/contract/adminRefund/getList ",
+        url: concans.schema+"://" + concans.host + "/contract/adminOrder/icOrder",
         method: "post",
         data: data,
       })

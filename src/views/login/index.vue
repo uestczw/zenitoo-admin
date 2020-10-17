@@ -52,28 +52,50 @@
           @keyup.enter.native="handleLogin"
         />
         <span class="show-pwd" @click="showPwd">
-          <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
+          <svg-icon
+            :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'"
+          />
         </span>
       </el-form-item>
 
       <el-button
         :loading="loading"
         type="primary"
-        style="width:100%;margin-bottom:30px;"
+        style="width: 100%; margin-bottom: 30px"
         @click.native.prevent="handleLogin"
-      >Login</el-button>
+        >Login</el-button
+      >
 
       <div class="tips">
-        <span style="margin-right:20px;">username: admin</span>
+        <span style="margin-right: 20px">username: admin</span>
         <span>password: any</span>
       </div>
     </el-form>
+
+    <el-dialog title="请选择所属商户" :visible.sync="dialogVisible" width="30%">
+        <el-table
+        :data="tableData"
+        empty-text=""
+        :row-style="{height:'50px'}"
+        :cell-style="{padding:0+'px'}"
+        style="width: 94%;margin-left:3%;border:1px solid #eeeeee;min-height:260px;"
+      >
+        <el-table-column prop="alliance_name" label="商户名称" width="290"></el-table-column>
+        <el-table-column label="操作" width="100">
+          <template slot-scope="scope">
+            <el-button type="text" @click="userSubmit(scope.row)">选择该商户</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { validUsername } from '@/utils/validate'
-import concans from '@/utils/concans'
+import request from "@/utils/request";
+import { getEmp, setEmp } from "@/utils/auth";
+import { validUsername } from "@/utils/validate";
+import concans from "@/utils/concans";
 export default {
   name: "Login",
   data() {
@@ -92,6 +114,8 @@ export default {
       }
     };
     return {
+      tableData: [],
+      dialogVisible: false,
       loginForm: {
         username: "18349288343",
         password: "111111",
@@ -119,6 +143,10 @@ export default {
     },
   },
   methods: {
+    userSubmit(row) {
+      setEmp(row);
+      this.$router.push({ path: this.redirect || "/" });
+    },
     showPwd() {
       if (this.passwordType === "password") {
         this.passwordType = "";
@@ -136,8 +164,31 @@ export default {
           this.$store
             .dispatch("user/login", this.loginForm)
             .then(() => {
+              request({
+                url:
+                  concans.schema +
+                  "://" +
+                  concans.host +
+                  "/contract/adminUser/getUserInfo",
+                method: "post",
+                data: {},
+              })
+                .then((res) => {
+                  console.log(res);
+                  var emps = res.data;
+                  if (emps.length == 1) {
+                    setEmp(emps[0]);
+                    this.$router.push({ path: this.redirect || "/" });
+                  } else {
+                    this.tableData = emps;
+                    this.dialogVisible = true;
+                  }
+                })
+                .catch((e) => {
+                  console.log(e);
+                });
               //alert(this.redirect)
-              this.$router.push({ path: this.redirect || "/" });
+              //this.$router.push({ path: this.redirect || "/" });
               this.loading = false;
             })
             .catch((e) => {

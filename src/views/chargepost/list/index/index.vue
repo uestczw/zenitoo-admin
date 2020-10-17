@@ -42,12 +42,12 @@
         :cell-style="{padding:0+'px'}"
         style="width: 94%;margin-left:3%;border:1px solid #eeeeee;min-height:40px;"
       >
-        <el-table-column prop="post_sn" label="充电桩编号" width="180"></el-table-column>
+        <el-table-column prop="post_sn" label="充电桩编号" width="120"></el-table-column>
         <el-table-column prop="car_port_name" label="车棚名称" width="180"></el-table-column>
-        <el-table-column prop="port_numbers" label="端口数量"></el-table-column>
+        <el-table-column prop="port_numbers" label="端口数量" width="60"></el-table-column>
         <el-table-column prop="max_charge_time" label="最大充电时长"></el-table-column>
-        <el-table-column prop="hardware_version" label="硬件版本"></el-table-column>
-        <el-table-column prop="firmware_version" label="软件版本"></el-table-column>
+        <el-table-column prop="hardware_version" label="硬件版本" width="60"></el-table-column>
+        <el-table-column prop="firmware_version" label="软件版本"  width="60"></el-table-column>
         <el-table-column prop="heart_time" label="心跳间隔时间"></el-table-column>
         <el-table-column prop="max_charge_power" label="最大充电功率"></el-table-column>
         <el-table-column prop="factory_name" label="厂家ID"></el-table-column>
@@ -58,6 +58,7 @@
           <template slot-scope="scope">
             <el-button type="text" @click="handleEdit(scope.row)">编辑</el-button>
             <el-button type="text" @click="showewm(scope.row)">二维码</el-button>
+            <el-button type="text" @click="resetPower(scope.row)">重启</el-button>
             <el-button v-if="scope.row.status == 1" type="text" @click="changeStatus(scope.row)">禁用</el-button>
             <el-button v-if="scope.row.status == 2" type="text" @click="changeStatus(scope.row)">启用</el-button>
           </template>
@@ -373,6 +374,21 @@ export default {
     this.loadFactory();
   },
   methods: {
+    resetPower(row) {
+      request({
+        url: concans.schema + "://" + concans.host + "/car-port/admin/post/reStart",
+        timeout: 5000,
+        method: "post",
+        data: { post_sn: row.post_sn },
+      })
+        .then((res) => {
+          console.log(res);
+          this.$message.success("重启成功!");
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    },
     showewm(row) {
       var url =
         concans.schema +
@@ -443,7 +459,7 @@ export default {
           concans.schema +
           "://" +
           concans.host +
-          "/car-port/chargepost/buildSN",
+          "/car-port/admin/chargepost/buildSN",
         method: "get",
         params: {
           numbers: this.addnumbers,
@@ -468,7 +484,7 @@ export default {
                 concans.schema +
                 "://" +
                 concans.host +
-                "/car-port/chargepost/update",
+                "/car-port/admin/chargepost/update",
               method: "post",
               data: {
                 car_port_id: this.form.car_port_id,
@@ -500,7 +516,7 @@ export default {
                 concans.schema +
                 "://" +
                 concans.host +
-                "/car-port/chargepost/add",
+                "/car-port/admin/chargepost/add",
               method: "post",
               data: {
                 interval_rate: this.form.interval_rate,
@@ -548,7 +564,7 @@ export default {
           concans.schema +
           "://" +
           concans.host +
-          "/car-port/chargepost/updatePostStatus",
+          "/car-port/admin/chargepost/updatePostStatus",
         method: "post",
         data: {
           car_port_id: row.car_port_id,
@@ -652,7 +668,7 @@ export default {
       console.log("loadCell" + value);
       request({
         url:
-          concans.schema + "://" + concans.host + "/car-port/carport/getList",
+          concans.schema + "://" + concans.host + "/car-port/admin/carport/getList",
         method: "get",
         params: { pageNo: 1, pageSize: 10, car_port_name: value },
       })
@@ -694,7 +710,7 @@ export default {
           concans.schema +
           "://" +
           concans.host +
-          "/car-port/chargepost/getList",
+          "/car-port/admin/chargepost/getList",
         method: "get",
         params: data,
       })

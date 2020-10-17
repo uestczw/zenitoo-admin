@@ -6,22 +6,17 @@
       <div style="padding-bottom:10px;padding-top:10px;float:left;width:100%;">
         <el-row>
           <el-col :span="3">
-            <div style="margin-top:3px;margin-left:0;font-size:18px;text-align:center;">用户退款管理</div>
+            <div style="margin-top:3px;margin-left:0;font-size:18px;text-align:center;">用户停车包</div>
           </el-col>
-          <el-col :span="4">
-            <el-input placeholder="订单号"" v-model="searchCode" class="input-with-select">
-            </el-input>
-          </el-col>
-          <el-col :span="4">
-            <el-select v-model="searchStatus" placeholder="状态"">
+          <el-col :span="3" align="center">
+            <el-select v-model="searchStatus" placeholder="状态" style="width:120px;">
               <el-option label="全部状态" value></el-option>
-              <el-option label="未审核" value="create"></el-option>
-              <el-option label="已退款" value="refund"></el-option>
-              <el-option label="已审核" value="check_status"></el-option>
+              <el-option label="生效" value="1"></el-option>
+              <el-option label="失效" value="2"></el-option>
             </el-select>
           </el-col>
           <el-col :span="4">
-            <el-input placeholder="用户电话" v-model="searchTel" class="input-with-select">
+            <el-input placeholder="用户手机号" v-model="searchTel" class="input-with-select">
               <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
             </el-input>
           </el-col>
@@ -34,24 +29,27 @@
         :cell-style="{padding:0+'px'}"
         style="width: 94%;margin-left:3%;border:1px solid #eeeeee;min-height:40px;"
       >
-        <el-table-column prop="refund_money" label="退款金额(元)" width="120"></el-table-column>
-        <el-table-column prop="create_time" label="创建时间" width="180"></el-table-column>
-        <el-table-column prop="refund_sn" label="退款单编号" width="160"></el-table-column>
-        <el-table-column prop="order_sn" label="订单编号" width="160"></el-table-column>
-        <el-table-column prop="user_id" label="用户id" width="120"></el-table-column>
-        <el-table-column prop="has_charge" label="审核状态">
+        <el-table-column label="操作" min-width="110">
           <template slot-scope="scope">
-              <label v-if="scope.row.status == 'create'">未审核</label>
-              <label v-if="scope.row.status == 'checked'">已审核</label>
-              <label v-if="scope.row.status == 'refund'">已退款</label>
-        </template>
-        </el-table-column>
-        <el-table-column label="操作" min-width="200">
-          <template slot-scope="scope">
-            <el-button v-if="scope.row.status == 'create'" type="text" @click="refund(scope.row,'refund')">审核通过</el-button>
-            <el-button v-if="scope.row.status == 'create'" type="text" @click="refund(scope.row,'refused')">审核不通过</el-button>
+            <el-button type="text" @click="handleEdit(scope.row)">修改时间</el-button>
           </template>
         </el-table-column>
+        <el-table-column prop="car_port_name" label="车棚名称" width="180"></el-table-column>
+        <el-table-column prop="car_type_name" label="车辆类型" width="120">
+        </el-table-column>
+        <el-table-column prop="is_charging" label="是否可以充电" width="120">
+          <template slot-scope="scope">
+            <span v-if="scope.row.is_charging == 1">可以</span>
+            <span v-if="scope.row.is_charging == 2">不可以</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="user_stop_package_id" label="停车包id" width="80"></el-table-column>
+        <el-table-column prop="user_charge_package_id" label="充电包id"" width="80"></el-table-column>
+        <el-table-column prop="start_time" label="开始时间" width="160"></el-table-column>
+        <el-table-column prop="end_time" label="结束时间" width="160"></el-table-column>
+        <el-table-column prop="pay_money" label="pay_money" width="100"></el-table-column>
+        <el-table-column prop="charge_pay_money" label="charge_pay_money" width="100"></el-table-column>
+        <el-table-column prop="refund_money" label="refund_money" width="100"></el-table-column>
       </el-table>
       <div class="pagination" style="width: 94%;margin-left:3%;">
         <el-pagination
@@ -65,6 +63,31 @@
         ></el-pagination>
       </div>
     </div>
+
+    <el-dialog title="修改时间" :visible.sync="dialogTimeVisible">
+      <label>开始时间</label>
+      <el-date-picker
+                v-model="start_time"
+                value-format="yyyy-MM-dd"
+                format="yyyy-MM-dd"
+                align="right"
+                type="date"
+                placeholder="选择日期"
+              ></el-date-picker>
+      <label>   结束时间</label>
+      <el-date-picker
+                v-model="end_time"
+                value-format="yyyy-MM-dd"
+                format="yyyy-MM-dd"
+                align="right"
+                type="date"
+                placeholder="选择日期"
+              ></el-date-picker>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogTimeVisible = false">取 消</el-button>
+        <el-button type="primary" @click="timeSubmit">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -83,6 +106,9 @@ export default {
     //   console.log(e)
     // })
     return {
+      start_time:'',
+      end_time:'',
+      dialogTimeVisible:false,
       searchTel: '',
       searchCode: '',
       dialogFormVisible: false,
@@ -129,29 +155,17 @@ export default {
     this.getData({});
   },
   methods: {
-    refund(row,type){
-      if(type == 'refund'){
-        if(!window.confirm('审核通过将直接企业付款到零钱，请确认!')){
-          return false;
-        }
-      }else{
-        // this.$message({
-        //   message: '暂不支持审核不通过',
-        //   type: 'error'
-        // });
-        // return false;
-      }
+    retryBack(row){
       request({
-        url: concans.schema+"://" + concans.host + "/contract/adminRefund/checkOrder",
+        url: concans.schema+"://" + concans.host + "/zenitoo-trans/payOrder/retryBack",
         method: "post",
         data: {
-          refund_sn: row.refund_sn,
-          check_status:type
+          id: row.id,
         },
       })
         .then((res) => {
           console.log(res);
-          alert('审核完成');
+          alert('补单完成');
         })
         .catch((e) => {
           console.log(e);
@@ -166,6 +180,31 @@ export default {
       this.pageInfo.pageSize = val;
       this.getData({});
     },
+    handleEdit(row){
+      this.row = row;
+      this.start_time = row.start_time;
+      this.end_time = row.end_time;
+      this.dialogTimeVisible = true;
+    },
+    timeSubmit(){
+      request({
+        url: concans.schema+"://" + concans.host + "/contract/adminOrder/updatePackageStartTime",
+        method: "post",
+        data: {
+          user_stop_package_id: this.row.user_stop_package_id,
+          start_time: this.start_time
+        },
+      })
+        .then((res) => {
+          console.log(res);
+          this.dialogTimeVisible = false;
+          this.getData({});
+          this.$message.success('修改完成');
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    },
     search() {
       this.getData({});
     },
@@ -173,11 +212,11 @@ export default {
     getData(data) {
       data.pageSize = this.pageInfo.pageSize;
       data.pageNo = this.pageInfo.current_page;
-      data.tel = this.searchTel;
-      data.busOrderId = this.searchCode;
+      data.mobile = this.searchTel;
+      data.is_active = this.searchStatus;
       console.log(data);
       request({
-        url: concans.schema+"://" + concans.host + "/contract/adminRefund/getList ",
+        url: concans.schema+"://" + concans.host + "/contract/adminOrder/getStopPackageList",
         method: "post",
         data: data,
       })

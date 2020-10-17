@@ -88,12 +88,13 @@
                 placeholder="请输入关键词"
                 :remote-method="loadContract"
                 style="float:left;width:70%;"
+                @change="contractChange"
               >
                 <el-option
                   v-for="cell in contracts"
-                  :key="cell.contract_id"
+                  :key="cell.contract_id+''"
                   :label="cell.contract_code"
-                  :value="cell.contract_id"
+                  :value="cell.contract_id+''"
                 ></el-option>
               </el-select>
               <el-button style="float:left;" @click="showContract">查看</el-button>
@@ -616,6 +617,10 @@ export default {
     this.loadCartypes();
   },
   methods: {
+    contractChange(item){
+      this.$forceUpdate();
+      console.log(item);
+    },
     showContract() {
       var href = this.$router.resolve({
         path: '/sysdata/contract',
@@ -658,7 +663,7 @@ export default {
     },
     loadCartypes() {
       request({
-        url: concans.schema+"://" + concans.host + "/car-port/cartype/getList",
+        url: concans.schema+"://" + concans.host + "/car-port/admin/cartype/getList",
         timeout: 5000,
         method: "post",
         params: { pageNo: 1, pageSize: 100 },
@@ -777,10 +782,10 @@ export default {
           if (this.form.row.car_port_id) {
             console.log(this.form);
             request({
-              url: concans.schema+"://" + concans.host + "/car-port/carport/update",
+              url: concans.schema+"://" + concans.host + "/car-port/admin/carport/update",
               method: "post",
               data: {
-                contract_id: this.form.interval_rate,
+                contract_id: this.form.contract_id,
                 interval_rate: this.form.interval_rate,
                 deposit_money: this.form.deposit_money,
                 car_port_name: this.form.car_port_name,
@@ -804,10 +809,10 @@ export default {
               });
           } else {
             request({
-              url: concans.schema+"://" + concans.host + "/car-port/carport/add",
+              url: concans.schema+"://" + concans.host + "/car-port/admin/carport/add",
               method: "post",
               data: {
-                contract_id: this.form.interval_rate,
+                contract_id: this.form.contract_id,
                 interval_rate: this.form.interval_rate,
                 deposit_money: this.form.deposit_money,
                 car_port_name: this.form.car_port_name,
@@ -853,7 +858,7 @@ export default {
       console.log(status);
       request({
         url:
-          concans.schema+"://" + concans.host + "/car-port/stoppackage/changeStatusSys",
+          concans.schema+"://" + concans.host + "/car-port/admin/stoppackage/changeStatusSys",
         method: "post",
         data: {
           car_port_id: row.car_port_id,
@@ -884,6 +889,8 @@ export default {
       })
         .then((res) => {
           res = res.data;
+          console.log(res);
+          //this.contracts = [{contract_id:'4',contract_code:'2342342'}];
           this.contracts.push(res);
         })
         .catch((e) => {
@@ -894,7 +901,7 @@ export default {
       console.log(row);
       this.cellEditStatus = true;
       this.form.row = row;
-      this.form.contract_id = row.contract_id;
+      this.form.contract_id = row.contract_id+'';
       this.initContract(row.contract_id);
       this.form.interval_rate = row.interval_rate;
       this.form.deposit_money = row.deposit_money;
@@ -997,7 +1004,7 @@ export default {
     loadCell(value) {
       console.log("loadCell" + value);
       request({
-        url: concans.schema+"://" + concans.host + "/car-port/cell/getList",
+        url: concans.schema+"://" + concans.host + "/car-port/admin/cell/getList",
         method: "get",
         params: { pageNo: 1, pageSize: 10, cell_name: value },
       })
@@ -1010,6 +1017,7 @@ export default {
     },
     loadContract(value) {
       console.log("loadCell" + value);
+      //this.contracts.push({contract_id:23434,contract_code:'123123'});
       request({
         url: concans.schema+"://" + concans.host + "/contract/adminContract/getList",
         method: "get",
@@ -1048,7 +1056,7 @@ export default {
       data.district_code = district_code;
       console.log(data);
       request({
-        url: concans.schema+"://" + concans.host + "/car-port/carport/getList",
+        url: concans.schema+"://" + concans.host + "/car-port/admin/carport/getList",
         method: "get",
         params: data,
       })

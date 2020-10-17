@@ -176,7 +176,7 @@ export default {
           if (this.form.row.car_type_id) {
             console.log(this.form)
             request({
-              url: "https://" + concans.host + "/car-port/cartype/update",
+              url: "https://" + concans.host + "/car-port/admin/cartype/update",
               method: "post",
               data: {
                 car_type_name: this.form.car_type_name,
@@ -195,7 +195,7 @@ export default {
               });
           } else {
             request({
-              url: "https://" + concans.host + "/car-port/cartype/add",
+              url: "https://" + concans.host + "/car-port/admin/cartype/add",
               method: "post",
               data: {
                 car_type_name: this.form.car_type_name,
@@ -235,7 +235,7 @@ export default {
       this.dialogVisible = false;
       console.log(status);
       request({
-        url: concans.schema+"://" + concans.host + "/car-port/cartype/chargeStatus",
+        url: concans.schema+"://" + concans.host + "/car-port/admin/cartype/chargeStatus",
         method: "post",
         data: {
           car_type_id: row.car_type_id,
@@ -281,7 +281,7 @@ export default {
       data.status = this.searchStatus;
       console.log(data);
       request({
-        url: concans.schema+"://" + concans.host + "/car-port/cartype/getList",
+        url: concans.schema+"://" + concans.host + "/car-port/admin/cartype/getList",
         method: "get",
         params: data,
       })

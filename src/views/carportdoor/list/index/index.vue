@@ -302,7 +302,7 @@ export default {
     },
     partEdit(row){
       request({
-        url: concans.schema+"://" + concans.host + "/car-port/carportdoor/getDoorPartList",
+        url: concans.schema+"://" + concans.host + "/car-port/admin/carportdoor/getDoorPartList",
         timeout: 5000,
         method: "post",
         params: { door_id: row.door_id },
@@ -411,7 +411,7 @@ export default {
       this.$refs.form.validate((valid) => {
         if (valid) {
       request({
-        url: concans.schema+"://" + concans.host + "/car-port/carportdoor/addDoorPart",
+        url: concans.schema+"://" + concans.host + "/car-port/admin/carportdoor/addDoorPart",
         timeout: 5000,
         method: "post",
         data: {part:this.form.parts,qr_code:this.form.qr_codes,door_id:this.door_id_tmp},
@@ -454,7 +454,7 @@ export default {
           if (this.form.row.car_port_id) {
             console.log(this.form)
             request({
-              url: concans.schema+"://" + concans.host + "/car-port/carportdoor/update",
+              url: concans.schema+"://" + concans.host + "/car-port/admin/carportdoor/update",
               method: "post",
               data: {
                 car_port_id: this.form.car_port_id,
@@ -473,7 +473,7 @@ export default {
               });
           } else {
             request({
-              url: concans.schema+"://" + concans.host + "/car-port/carportdoor/add",
+              url: concans.schema+"://" + concans.host + "/car-port/admin/carportdoor/add",
               method: "post",
               data: {
                 car_port_id: this.form.car_port_id,
@@ -513,7 +513,7 @@ export default {
       this.dialogVisible = false;
       console.log(status);
       request({
-        url: concans.schema+"://" + concans.host + "/car-port/carportdoor/delete",
+        url: concans.schema+"://" + concans.host + "/car-port/admin/carportdoor/delete",
         method: "post",
         data: {
           door_id: row.door_id
@@ -558,7 +558,7 @@ export default {
       data.car_port_id = this.form.car_port_id;
       console.log(data);
       request({
-        url: concans.schema+"://" + concans.host + "/car-port/carportdoor/getList",
+        url: concans.schema+"://" + concans.host + "/car-port/admin/carportdoor/getList",
         method: "get",
         params: data,
       })
