@@ -41,7 +41,7 @@
           </el-col>
           <el-col :span="4">
             <el-input
-              placeholder="合作商名称"
+              placeholder="合同编号"
               v-model="searchName"
               class="input-with-select"
             >
@@ -49,8 +49,8 @@
           </el-col>
           <el-col :span="4">
             <el-input
-              placeholder="小区名称"
-              v-model="searchName"
+              placeholder="合作商"
+              v-model="searchAli"
               class="input-with-select"
             >
               <el-button
@@ -597,6 +597,7 @@ export default {
       callback();
     };
     return {
+      searchAli: '',
       serFri: "",
       serSn: "",
       serFriName: "",
@@ -725,7 +726,7 @@ export default {
           concans.host +
           "/contract/adminAlliance/getList",
         method: "get",
-        params: { pageNo: 1, pageSize: 10, mobile: value },
+        params: { pageNo: 1, pageSize: 10, alliance_mobile: value },
       })
         .then((res) => {
           this.serMers = res.data.rows;
@@ -1012,8 +1013,8 @@ export default {
     getData(data) {
       data.pageSize = this.pageInfo.pageSize;
       data.pageNo = this.pageInfo.current_page;
-      data.car_type_name = this.searchName;
-      data.status = this.searchStatus;
+      data.contract_code = this.searchName;
+      data.alliance_name = this.searchAli;
       console.log(data);
       request({
         url:

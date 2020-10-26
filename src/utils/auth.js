@@ -25,7 +25,7 @@ export function removeUser() {
 }
 export function setEmp(emp) {
   Cookies.set('zenitoo-emp-id',emp.employee_id)
-  Cookies.set('zenitoo-emp-type',emp.user_type)
+  Cookies.set('zenitoo-emp-type',emp.alliance_sys_type)
   return Cookies.set('zenitoo-emp',emp)
 }
 export function getEmp() {

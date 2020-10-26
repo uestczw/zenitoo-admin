@@ -49,6 +49,7 @@ const rules = { 'admin': {
 }
 
 router.beforeEach(async(to, from, next) => {
+  rules.sys_admin = rules.admin;
   // start progress bar
   NProgress.start()
 

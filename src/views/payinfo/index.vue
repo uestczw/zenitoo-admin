@@ -261,7 +261,7 @@ export default {
           concans.host +
           "/contract/adminAlliance/getList",
         method: "get",
-        params: { pageNo: 1, pageSize: 10, mobile: value },
+        params: { pageNo: 1, pageSize: 10, alliance_mobile: value, alliance_sys_type:'admin'},
       })
         .then((res) => {
           this.serMers = res.data.rows;
