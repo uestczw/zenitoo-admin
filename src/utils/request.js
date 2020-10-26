@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { MessageBox, Message } from 'element-ui'
 import store from '@/store'
-import { getToken, removeToken, getEmp } from '@/utils/auth'
+import { setToken, getToken, removeToken, getEmp } from '@/utils/auth'
 import { resetRouter } from '@/router'
 // create an axios instance
 const service = axios.create({
@@ -44,6 +44,10 @@ service.interceptors.response.use(
    * You can also judge the status by HTTP Status Code
    */
   response => {
+    if (response.headers.token) {
+      console.log('重新设置token')
+      setToken(response.headers.token)
+    }
     const res = response.data
 
     // if the custom code is not 20000, it is judged as an error.
