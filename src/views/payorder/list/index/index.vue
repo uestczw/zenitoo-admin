@@ -26,7 +26,10 @@
         :cell-style="{padding:0+'px'}"
         style="width: 94%;margin-left:3%;border:1px solid #eeeeee;min-height:40px;"
       >
-        <el-table-column prop="payMoney" label="付款金额(分)" width="180"></el-table-column>
+        <el-table-column prop="id" label="付款订单号" width="150"></el-table-column>
+        <el-table-column prop="userOrderId" label="平台订单号" width="150"></el-table-column>
+        <el-table-column prop="busOrderId" label="业务订单号" width="150"></el-table-column>
+        <el-table-column prop="payMoney" label="付款金额(分)" width="100"></el-table-column>
         <el-table-column prop="createTimeStr" label="创建时间" width="180"></el-table-column>
         <el-table-column prop="has_charge" label="支付状态">
           <template slot-scope="scope">
